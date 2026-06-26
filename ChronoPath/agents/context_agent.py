@@ -1,0 +1,20 @@
+class ContextAggregator:
+    def run(self, location, profile, journey):
+        interests = ", ".join(profile.get("interests", [])) or "history"
+        visited = ", ".join(journey.get("visited_places", [])) or "no prior stops"
+        facts = location.get("facts", [])
+
+        return {
+            "context": location["historical_context"],
+            "place": location["place"],
+            "language": profile.get("language", "English"),
+            "tone": profile.get("tone", "clear"),
+            "interests": profile.get("interests", []),
+            "visited_places": journey.get("visited_places", []),
+            "facts": facts,
+            "prompt_context": (
+                f"{location['place']} in Pune belongs to the "
+                f"{location['historical_context']}. The user likes {interests}. "
+                f"They have already visited {visited}. Key facts: {' '.join(facts)}"
+            ),
+        }
