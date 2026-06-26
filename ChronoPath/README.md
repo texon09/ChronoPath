@@ -1,28 +1,76 @@
 # ChronoPath AI
 
-Location-aware historical storytelling MVP migrated from the n8n prototype shape
-to a Python multi-agent architecture.
+ChronoPath AI is a production-oriented multimodal historical storytelling system.
+The target architecture uses Google ADK agents, Gemini, Google Maps, Wikipedia,
+Wikidata, OpenStreetMap, PostgreSQL with pgvector, Redis, Google Cloud Storage,
+FastAPI, Docker, Cloud Run, and OpenTelemetry.
 
-## Run Demo
+## Milestone 1: Production Foundation
 
-```bash
-python main.py --user 1 --lat 18.5196 --lng 73.8553
-```
+This milestone establishes the backend foundation without pretending that real
+external integrations are already wired.
 
-Expected output includes:
+Included now:
+
+- FastAPI application shell
+- Typed request and response contracts
+- Environment-driven configuration
+- Async base agent interface
+- Dockerfile and docker-compose services
+- CI workflow
+- Contract tests
+
+## API Contract
+
+`POST /generate`
+
+Request:
 
 ```json
 {
-  "place": "Shaniwar Wada",
-  "context": "Peshwa Era",
-  "story": "..."
+  "user_id": "user-1",
+  "lat": 18.5196,
+  "lng": 73.8553
 }
 ```
 
-## MVP Scope
+Response:
 
-- Mock location, profile, journey, history, and network tools
-- Supervisor-driven end-to-end flow
-- JSON responses
-- Simple in-memory journey write
-- No vector DB, auth, Cloud Run, media generation, or real evaluation
+```json
+{
+  "request_id": "",
+  "place": {
+    "id": "",
+    "name": ""
+  },
+  "text": {
+    "title": "",
+    "story": "",
+    "facts": []
+  },
+  "audio": {
+    "url": "",
+    "duration": 0
+  },
+  "visual": {
+    "url": ""
+  },
+  "metadata": {
+    "latency_ms": 0,
+    "cached": false
+  }
+}
+```
+
+## Local Commands
+
+```bash
+python -m unittest discover -s tests
+uvicorn app:app --reload
+docker compose up --build
+```
+
+## Configuration
+
+Copy `.env.example` to `.env` and provide real credentials before enabling
+production integrations.
