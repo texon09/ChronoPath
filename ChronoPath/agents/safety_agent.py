@@ -2,6 +2,12 @@ class SafetyAgent:
     REQUIRED_FIELDS = {"story", "facts", "language"}
     BLOCKED_PATTERNS = ["ignore previous instructions", "system prompt", "api key"]
 
+    async def execute(self, state):
+        narrative = state.get("story")
+        safety = self.run(narrative)
+        state.set("safety", safety)
+        return state
+
     def run(self, narrative):
         story = narrative.get("story", "")
         has_schema = self.REQUIRED_FIELDS.issubset(narrative.keys())

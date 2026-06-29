@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import json
 
 from agents.supervisor import SupervisorAgent
@@ -6,7 +7,7 @@ from agents.supervisor import SupervisorAgent
 
 def run_demo(user_id="1", lat=18.5196, lng=73.8553, network_quality="good"):
     supervisor = SupervisorAgent()
-    return supervisor.run(
+    response = supervisor.run(
         {
             "user_id": user_id,
             "lat": lat,
@@ -14,6 +15,11 @@ def run_demo(user_id="1", lat=18.5196, lng=73.8553, network_quality="good"):
             "network_quality": network_quality,
         }
     )
+    return response
+
+
+async def run(payload):
+    return await SupervisorAgent().execute(payload)
 
 
 def main():
@@ -24,7 +30,17 @@ def main():
     parser.add_argument("--network", default="good", choices=["good", "medium", "low"])
     args = parser.parse_args()
 
-    response = run_demo(args.user, args.lat, args.lng, args.network)
+    response = asyncio.run(
+        run(
+            {
+                "user_id": args.user,
+                "lat": args.lat,
+                "lng": args.lng,
+                "network_quality": args.network,
+            }
+        )
+    )
+    response = response.model_dump()
     print(json.dumps(response, indent=2))
 
 

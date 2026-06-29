@@ -3,6 +3,12 @@ from tools.history_tool import fetch_history
 
 
 class LocationAgent:
+    async def execute(self, state):
+        request = state.get("request")
+        location = self.run(request)
+        state.set("location", location)
+        return state
+
     def run(self, payload):
         lat = payload["lat"]
         lng = payload["lng"]

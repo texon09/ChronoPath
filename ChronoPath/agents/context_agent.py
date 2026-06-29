@@ -1,4 +1,12 @@
 class ContextAggregator:
+    async def execute(self, state):
+        location = state.get("location")
+        profile = state.get("profile", {})
+        journey = state.get("journey", {})
+        context = self.run(location, profile, journey)
+        state.set("context", context)
+        return state
+
     def run(self, location, profile, journey):
         interests = ", ".join(profile.get("interests", [])) or "history"
         visited = ", ".join(journey.get("visited_places", [])) or "no prior stops"

@@ -5,10 +5,10 @@ The target architecture uses Google ADK agents, Gemini, Google Maps, Wikipedia,
 Wikidata, OpenStreetMap, PostgreSQL with pgvector, Redis, Google Cloud Storage,
 FastAPI, Docker, Cloud Run, and OpenTelemetry.
 
-## Milestone 1: Production Foundation
+## Milestone 2: Executable Agent Pipeline
 
-This milestone establishes the backend foundation without pretending that real
-external integrations are already wired.
+The backend now exposes an executable `/generate` flow. FastAPI validates the
+request, hands it to the supervisor, and the supervisor coordinates the agents.
 
 Included now:
 
@@ -16,6 +16,9 @@ Included now:
 - Typed request and response contracts
 - Environment-driven configuration
 - Async base agent interface
+- Session state
+- Async supervisor orchestration
+- `/generate` endpoint wired to the agent pipeline
 - Dockerfile and docker-compose services
 - CI workflow
 - Contract tests
@@ -28,9 +31,9 @@ Request:
 
 ```json
 {
-  "user_id": "user-1",
-  "lat": 18.5196,
-  "lng": 73.8553
+  "user_id": "1",
+  "latitude": 18.5196,
+  "longitude": 73.8553
 }
 ```
 
@@ -39,26 +42,12 @@ Response:
 ```json
 {
   "request_id": "",
-  "place": {
-    "id": "",
-    "name": ""
-  },
+  "place": "Shaniwar Wada",
   "text": {
-    "title": "",
-    "story": "",
-    "facts": []
+    "title": "Shaniwar Wada - Peshwa Era",
+    "story": "..."
   },
-  "audio": {
-    "url": "",
-    "duration": 0
-  },
-  "visual": {
-    "url": ""
-  },
-  "metadata": {
-    "latency_ms": 0,
-    "cached": false
-  }
+  "safe": true
 }
 ```
 
@@ -66,8 +55,16 @@ Response:
 
 ```bash
 python -m unittest discover -s tests
-uvicorn app:app --reload
+uvicorn api.main:app --reload
 docker compose up --build
+```
+
+Example:
+
+```bash
+curl -X POST http://localhost:8000/generate \
+  -H "Content-Type: application/json" \
+  -d "{\"user_id\":\"1\",\"latitude\":18.5196,\"longitude\":73.8553}"
 ```
 
 ## Configuration

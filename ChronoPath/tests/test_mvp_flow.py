@@ -14,8 +14,9 @@ class MvpFlowTest(unittest.TestCase):
         )
 
         self.assertEqual(response["place"], "Shaniwar Wada")
-        self.assertEqual(response["context"], "Peshwa Era")
-        self.assertTrue(response["story"])
+        self.assertIn("Peshwa Era", response["text"]["title"])
+        self.assertTrue(response["text"]["story"])
+        self.assertTrue(response["safe"])
 
 
 if __name__ == "__main__":

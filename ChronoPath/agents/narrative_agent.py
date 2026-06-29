@@ -1,4 +1,10 @@
 class NarrativeAgent:
+    async def execute(self, state):
+        context = state.get("context")
+        narrative = self.run(context)
+        state.set("story", narrative)
+        return state
+
     def run(self, context):
         place = context["place"]
         era = context["context"]
