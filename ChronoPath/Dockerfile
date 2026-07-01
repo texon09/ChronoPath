@@ -1,15 +1,15 @@
-FROM python:3.13-slim
-
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
+# Build stage
+FROM python:3.11-slim as builder
 WORKDIR /app
-
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
 
-COPY . .
-
-EXPOSE 8080
-
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]
+# Runtime stage
+FROM python:3.11-slim
+WORKDIR /app
+COPY --from=builder /app/wheels /wheels
+COPY --from=builder /app/requirements.txt .
+RUN pip install --no-cache /wheels/*
+COPY . /app/
+EXPOSE 8000
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]

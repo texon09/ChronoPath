@@ -5,15 +5,15 @@ class DeliveryAgent:
     async def execute(self, state):
         narrative = state.get("story")
         request = state.get("request", {})
-        delivery = self.run(
+        delivery = await self.run(
             narrative,
             network_quality=request.get("network_quality", "good"),
         )
         state.set("delivery", delivery)
         return state
 
-    def run(self, narrative, network_quality="good"):
-        network = network_quality_check(network_quality)
+    async def run(self, narrative, network_quality="good"):
+        network = await network_quality_check(network_quality)
         quality = network["quality"]
 
         if quality == "low":
@@ -32,3 +32,4 @@ class DeliveryAgent:
             "network": network,
             "story": narrative["story"],
         }
+

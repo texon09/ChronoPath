@@ -5,20 +5,21 @@ from tools.history_tool import fetch_history
 class LocationAgent:
     async def execute(self, state):
         request = state.get("request")
-        location = self.run(request)
+        location = await self.run(request)
         state.set("location", location)
         return state
 
-    def run(self, payload):
+    async def run(self, payload):
         lat = payload["lat"]
         lng = payload["lng"]
-        geo = reverse_geocode(lat, lng)
-        heritage = heritage_lookup(lat, lng)
-        history = fetch_history(heritage["place"])
+        geo = await reverse_geocode(lat, lng)
+        heritage = await heritage_lookup(lat, lng)
+        history = await fetch_history(heritage["place"])
+        conf = await confidence_score(heritage["distance_km"])
 
         return {
             "place": heritage["place"],
-            "confidence": confidence_score(heritage["distance_km"]),
+            "confidence": conf,
             "distance_km": heritage["distance_km"],
             "geo": geo,
             "period": heritage["period"],
@@ -27,3 +28,4 @@ class LocationAgent:
             "historical_context": history["context"],
             "facts": history["facts"],
         }
+

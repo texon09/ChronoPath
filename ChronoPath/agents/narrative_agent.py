@@ -1,3 +1,4 @@
+
 class NarrativeAgent:
     async def execute(self, state):
         context = state.get("context")
@@ -33,3 +34,4 @@ class NarrativeAgent:
             "facts": context.get("facts", []),
             "language": language,
         }
+

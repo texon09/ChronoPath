@@ -1,3 +1,4 @@
+
 class SafetyAgent:
     REQUIRED_FIELDS = {"story", "facts", "language"}
     BLOCKED_PATTERNS = ["ignore previous instructions", "system prompt", "api key"]
@@ -22,3 +23,4 @@ class SafetyAgent:
                 "grounding": bool(narrative.get("facts")),
             },
         }
+

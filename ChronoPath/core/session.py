@@ -4,7 +4,7 @@ from typing import Any
 
 class SessionState:
     def __init__(self, initial: dict[str, Any] | None = None):
-        self._data: dict[str, Any] = dict(initial or {})
+        self._data: dict[str, Any] = initial if initial is not None else {}
 
     def set(self, key: str, value: Any) -> None:
         self._data[key] = value

@@ -1,3 +1,4 @@
+
 class ContextAggregator:
     async def execute(self, state):
         location = state.get("location")
@@ -26,3 +27,4 @@ class ContextAggregator:
                 f"They have already visited {visited}. Key facts: {' '.join(facts)}"
             ),
         }
+
