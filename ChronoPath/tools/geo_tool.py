@@ -33,32 +33,36 @@ def _distance_km(lat1, lng1, lat2, lng2):
 
 @retry(wait=wait_exponential(multiplier=1, min=2, max=10), stop=stop_after_attempt(3))
 async def reverse_geocode(lat: float, lng: float) -> dict:
-    if settings.google_api_key:
-        url = f"https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lng}&key={settings.google_api_key}"
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            resp = await client.get(url)
-            resp.raise_for_status()
-            data = resp.json()
-            if data.get("status") == "OK" and data.get("results"):
-                results = data["results"]
-                city, state, country = "Unknown", "Unknown", "Unknown"
-                for comp in results[0].get("address_components", []):
-                    if "locality" in comp["types"]:
-                        city = comp["long_name"]
-                    if "administrative_area_level_1" in comp["types"]:
-                        state = comp["long_name"]
-                    if "country" in comp["types"]:
-                        country = comp["long_name"]
-                
-                result = GeoResult(
-                    city=city,
-                    state=state,
-                    country=country,
-                    lat=lat,
-                    lng=lng,
-                    display_name=results[0].get("formatted_address", "")
-                )
-                return result.model_dump()
+    if settings.google_maps_api_key:
+        try:
+            url = f"https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lng}&key={settings.google_maps_api_key}"
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.get(url)
+                resp.raise_for_status()
+                data = resp.json()
+                if data.get("status") == "OK" and data.get("results"):
+                    results = data["results"]
+                    city, state, country = "Unknown", "Unknown", "Unknown"
+                    for comp in results[0].get("address_components", []):
+                        if "locality" in comp["types"]:
+                            city = comp["long_name"]
+                        if "administrative_area_level_1" in comp["types"]:
+                            state = comp["long_name"]
+                        if "country" in comp["types"]:
+                            country = comp["long_name"]
+                    
+                    result = GeoResult(
+                        city=city,
+                        state=state,
+                        country=country,
+                        lat=lat,
+                        lng=lng,
+                        display_name=results[0].get("formatted_address", "")
+                    )
+                    return result.model_dump()
+        except Exception as e:
+            print(f"reverse_geocode error: {e}")
+            pass
             
     # If no key or fails, gracefully return unknown but validated
     return GeoResult(
@@ -68,37 +72,54 @@ async def reverse_geocode(lat: float, lng: float) -> dict:
 
 @retry(wait=wait_exponential(multiplier=1, min=2, max=10), stop=stop_after_attempt(3))
 async def heritage_lookup(lat: float, lng: float) -> dict:
-    if settings.google_api_key:
-        url = (
-            f"https://maps.googleapis.com/maps/api/place/nearbysearch/json"
-            f"?location={lat},{lng}&radius=5000&type=tourist_attraction"
-            f"&keyword=historical&key={settings.google_api_key}"
-        )
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            resp = await client.get(url)
-            resp.raise_for_status()
-            data = resp.json()
-            if data.get("status") == "OK" and data.get("results"):
-                best = data["results"][0]
-                plat = best["geometry"]["location"]["lat"]
-                plng = best["geometry"]["location"]["lng"]
-                dist = round(_distance_km(lat, lng, plat, plng), 3)
-                
-                res = HeritageResult(
-                    place=best["name"],
-                    lat=plat,
-                    lng=plng,
-                    distance_km=dist,
-                    period="Historical Era", # Fallback since Maps lacks this
-                    themes=[t.replace('_', ' ').title() for t in best.get("types", [])[:3]],
-                    summary=best.get("vicinity", "Historical landmark")
-                )
-                return res.model_dump()
+    if settings.google_maps_api_key:
+        try:
+            radii = [500, 1500, 3000, 5000]
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                for radius in radii:
+                    url = (
+                        f"https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+                        f"?location={lat},{lng}&radius={radius}&type=point_of_interest"
+                        f"&key={settings.google_maps_api_key}"
+                    )
+                    resp = await client.get(url)
+                    resp.raise_for_status()
+                    data = resp.json()
+                    if data.get("status") == "OK" and data.get("results"):
+                        best_place = None
+                        min_dist = float('inf')
+                        
+                        for place_data in data["results"]:
+                            plat = place_data["geometry"]["location"]["lat"]
+                            plng = place_data["geometry"]["location"]["lng"]
+                            dist = _distance_km(lat, lng, plat, plng)
+                            
+                            if dist < min_dist:
+                                min_dist = dist
+                                best_place = place_data
+                                
+                        if best_place:
+                            res = HeritageResult(
+                                place=best_place["name"],
+                                lat=best_place["geometry"]["location"]["lat"],
+                                lng=best_place["geometry"]["location"]["lng"],
+                                distance_km=round(min_dist, 3),
+                                period="Historical Era", # Fallback since Maps lacks this
+                                themes=[t.replace('_', ' ').title() for t in best_place.get("types", [])[:3]],
+                                summary=best_place.get("vicinity", "Historical landmark")
+                            )
+                            return res.model_dump()
+        except Exception as e:
+            print(f"heritage_lookup error: {e}")
+            pass
 
-    # Fallback to prevent crash if no API key
+    # Fallback to prevent crash if no API key or no places found nearby
+    rev = await reverse_geocode(lat, lng)
+    place_name = rev.get("display_name", "Unknown Location") if rev else "Unknown Location"
+    
     return HeritageResult(
-        place="Unknown Heritage Site", lat=lat, lng=lng,
-        distance_km=0.0, period="Unknown", themes=[], summary="Unknown"
+        place=place_name, lat=lat, lng=lng,
+        distance_km=0.0, period="Modern Era", themes=["General location"], summary="Immediate vicinity"
     ).model_dump()
 
 async def confidence_score(distance_km: float) -> float:

@@ -19,6 +19,9 @@ class ContextAggregator:
             "language": profile.get("language", "English"),
             "tone": profile.get("tone", "clear"),
             "interests": profile.get("interests", []),
+            "age": profile.get("age"),
+            "origin": profile.get("origin"),
+            "background": profile.get("background"),
             "visited_places": journey.get("visited_places", []),
             "facts": facts,
             "prompt_context": (

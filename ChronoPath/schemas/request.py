@@ -8,6 +8,9 @@ class GenerateRequest(BaseModel):
     lat: float | None = Field(default=None, ge=-90, le=90)
     lng: float | None = Field(default=None, ge=-180, le=180)
     language: str | None = None
+    age: int | None = None
+    origin: str | None = None
+    background: str | None = None
 
     @model_validator(mode="after")
     def normalize_coordinates(self):
@@ -25,4 +28,7 @@ class GenerateRequest(BaseModel):
             "lat": self.latitude,
             "lng": self.longitude,
             "language": self.language,
+            "age": self.age,
+            "origin": self.origin,
+            "background": self.background,
         }

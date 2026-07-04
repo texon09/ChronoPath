@@ -10,12 +10,18 @@ class ProfileResult(BaseModel):
     language: str
     interests: list[str]
     tone: str
+    age: int | None = None
+    origin: str | None = None
+    background: str | None = None
 
 def _get_fallback_profile() -> dict:
     return ProfileResult(
         language="English",
         interests=["history"],
-        tone="clear"
+        tone="clear",
+        age=None,
+        origin=None,
+        background=None
     ).model_dump()
 
 @retry(wait=wait_exponential(multiplier=1, min=2, max=10), stop=stop_after_attempt(3))

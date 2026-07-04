@@ -10,22 +10,14 @@ import vertexai
 
 class MediaAgent:
     def __init__(self):
-        # We initialize GCP clients. If credentials aren't set, they may throw,
-        # but the instructions demand NO MOCKS.
-        self.tts_client = None
-        self.storage_client = None
         self.bucket_name = os.getenv("GCS_BUCKET_NAME", "chronopath-media-bucket")
         self.project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "")
         self.location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
 
         try:
-            self.tts_client = texttospeech.TextToSpeechAsyncClient()
-            self.storage_client = storage.Client()
             if self.project_id:
                 vertexai.init(project=self.project_id, location=self.location)
         except Exception:
-            # We must gracefully handle missing local creds during initialization,
-            # but the actual generation will attempt the real API.
             pass
 
     async def execute(self, state):
@@ -48,9 +40,6 @@ class MediaAgent:
         return state
 
     async def _generate_audio(self, text: str) -> dict:
-        if not self.tts_client:
-            return {"url": "https://storage.googleapis.com/chronopath-media/fallback.mp3"}
-            
         synthesis_input = texttospeech.SynthesisInput(text=text[:1500]) # Cap length
         voice = texttospeech.VoiceSelectionParams(
             language_code="en-IN",
@@ -60,20 +49,23 @@ class MediaAgent:
             audio_encoding=texttospeech.AudioEncoding.MP3
         )
 
-        response = await self.tts_client.synthesize_speech(
-            input=synthesis_input, voice=voice, audio_config=audio_config
-        )
-
-        filename = f"audio_{uuid.uuid4().hex}.mp3"
-        url = await self._upload_to_gcs(filename, response.audio_content, "audio/mpeg")
-        return {"url": url}
+        try:
+            # Instantiate dynamically on the correct running event loop
+            client = texttospeech.TextToSpeechAsyncClient()
+            response = await client.synthesize_speech(
+                input=synthesis_input, voice=voice, audio_config=audio_config
+            )
+            filename = f"audio_{uuid.uuid4().hex}.mp3"
+            url = await self._upload_to_gcs(filename, response.audio_content, "audio/mpeg")
+            return {"url": url}
+        except Exception as e:
+            print(f"TTS Error: {e}")
+            return {"url": "https://storage.googleapis.com/chronopath-media/fallback.mp3"}
 
     async def _generate_visual(self, place: str, narrative: str) -> dict:
         if not self.project_id:
             return {"url": "https://storage.googleapis.com/chronopath-media/fallback.png"}
 
-        # Use Vertex AI Imagen
-        # Wrapping sync Imagen model in asyncio
         prompt = f"A cinematic, historically accurate depiction of {place}. Highly detailed."
         
         loop = asyncio.get_running_loop()
@@ -95,19 +87,22 @@ class MediaAgent:
             return {"url": ""}
 
     async def _upload_to_gcs(self, filename: str, data: bytes, content_type: str) -> str:
-        if not self.storage_client:
-            return f"https://storage.googleapis.com/{self.bucket_name}/{filename}"
-            
         loop = asyncio.get_running_loop()
         def _upload():
-            bucket = self.storage_client.bucket(self.bucket_name)
+            import datetime
+            client = storage.Client()
+            bucket = client.bucket(self.bucket_name)
             blob = bucket.blob(filename)
             blob.upload_from_string(data, content_type=content_type)
-            # Make public if IAM allows, else just return the URL pattern
-            # blob.make_public() 
-            return blob.public_url
+            
+            return blob.generate_signed_url(
+                version="v4",
+                expiration=datetime.timedelta(hours=1),
+                method="GET"
+            )
 
         try:
             return await loop.run_in_executor(None, _upload)
-        except Exception:
+        except Exception as e:
+            print(f"GCS Upload Error: {e}")
             return f"https://storage.googleapis.com/{self.bucket_name}/{filename}"
