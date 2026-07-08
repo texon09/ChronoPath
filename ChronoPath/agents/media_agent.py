@@ -4,9 +4,13 @@ import uuid
 import asyncio
 from google.cloud import texttospeech
 from google.cloud import storage
-from google.cloud import aiplatform
-from vertexai.preview.vision_models import ImageGenerationModel
-import vertexai
+try:
+    from google.cloud import aiplatform
+    from vertexai.preview.vision_models import ImageGenerationModel
+    import vertexai
+    HAS_VERTEX = True
+except ImportError:
+    HAS_VERTEX = False
 
 class MediaAgent:
     def __init__(self):
@@ -15,7 +19,7 @@ class MediaAgent:
         self.location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
 
         try:
-            if self.project_id:
+            if self.project_id and HAS_VERTEX:
                 vertexai.init(project=self.project_id, location=self.location)
         except Exception:
             pass
@@ -63,7 +67,7 @@ class MediaAgent:
             return {"url": "https://storage.googleapis.com/chronopath-media/fallback.mp3"}
 
     async def _generate_visual(self, place: str, narrative: str) -> dict:
-        if not self.project_id:
+        if not HAS_VERTEX or not self.project_id:
             return {"url": "https://storage.googleapis.com/chronopath-media/fallback.png"}
 
         prompt = f"A cinematic, historically accurate depiction of {place}. Highly detailed."

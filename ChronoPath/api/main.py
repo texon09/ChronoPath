@@ -4,6 +4,7 @@ from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, Counter, His
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 import time
 
+from fastapi.middleware.cors import CORSMiddleware
 from config import get_settings
 from agents.supervisor import SupervisorAgent
 from schemas import GenerateRequest, GenerateResponse
@@ -24,6 +25,16 @@ REQUEST_LATENCY = Histogram('request_latency_seconds', 'Request latency', ['endp
 
 settings = get_settings()
 app = FastAPI(title=settings.app_name)
+
+# CORS middleware configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 supervisor = SupervisorAgent()
 
 FastAPIInstrumentor.instrument_app(app)
