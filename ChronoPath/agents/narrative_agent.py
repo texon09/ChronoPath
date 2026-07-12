@@ -31,6 +31,10 @@ class NarrativeAgent:
             prompt += f"The user is originally from {origin}; draw deeply relatable historical parallels between {place} and the history of {origin}. "
         if background:
             prompt += f"The user's background/profession is '{background}'; emphasize historical aspects, architecture, or events that align with this background. "
+            
+        feedback = context.get("feedback")
+        if feedback:
+            prompt += f"\n\nCRITICAL FEEDBACK FROM REVIEWER: Your previous draft was rejected. You MUST fix these issues in this rewrite:\n{feedback}\n\n"
 
         prompt += f"Make the story vivid, educational, and immersive. Write it in {language}."
         
