@@ -1,6 +1,8 @@
 from tools.geo_tool import confidence_score, heritage_lookup, reverse_geocode
 from tools.history_tool import fetch_history
-
+import google.generativeai as genai
+import os
+import json
 
 class LocationAgent:
     async def execute(self, state):
@@ -14,7 +16,41 @@ class LocationAgent:
         lng = payload["lng"]
         geo = await reverse_geocode(lat, lng)
         heritage = await heritage_lookup(lat, lng)
-        history = await fetch_history(heritage["place"])
+        place_name = heritage["place"]
+        
+        # Agentic RAG Router
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if api_key:
+            genai.configure(api_key=api_key)
+            
+        model = genai.GenerativeModel("gemini-3.5-flash", generation_config={"response_mime_type": "application/json"})
+        router_prompt = (
+            f"Do you have deep, accurate historical knowledge about '{place_name}'? "
+            f"If it is a famous landmark, respond with 'is_famous': true and provide a 'context' and a list of 'facts'. "
+            f"If it is obscure, respond with 'is_famous': false. "
+            f"Return JSON strictly with keys: 'is_famous' (boolean), 'context' (string), 'facts' (list of strings)."
+        )
+        
+        try:
+            creds = os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
+            response = await model.generate_content_async(router_prompt)
+            if creds is not None:
+                os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds
+                
+            router_decision = json.loads(response.text)
+        except Exception:
+            router_decision = {"is_famous": False}
+            
+        if router_decision.get("is_famous"):
+            print(f"Agentic Router: Skipping Wikipedia, using internal LLM memory for {place_name}")
+            history = {
+                "context": router_decision.get("context", f"{place_name} History"),
+                "facts": router_decision.get("facts", [])
+            }
+        else:
+            print(f"Agentic Router: Place obscure, falling back to Wikipedia for {place_name}")
+            history = await fetch_history(place_name)
+            
         conf = await confidence_score(heritage["distance_km"])
 
         return {

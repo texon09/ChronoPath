@@ -3,6 +3,8 @@ from core.db import get_pool
 from pydantic import BaseModel
 import json
 import logging
+import os
+import google.generativeai as genai
 
 logger = logging.getLogger("chronopath.tools.journey_tool")
 
@@ -161,4 +163,48 @@ async def get_last_story(user_id) -> str | None:
                     return row["story_text"]
         except Exception:
             pass
+    return None
+
+async def _get_embedding(text: str) -> list[float]:
+    api_key = os.getenv("GOOGLE_API_KEY")
+    if api_key:
+        genai.configure(api_key=api_key)
+    try:
+        # Use a lightweight embedding model
+        result = genai.embed_content(
+            model="models/embedding-001",
+            content=text,
+            task_type="retrieval_document",
+        )
+        return result['embedding']
+    except Exception as e:
+        logger.error(f"Failed to generate embedding: {e}")
+        return []
+
+@retry(wait=wait_exponential(multiplier=1, min=2, max=10), stop=stop_after_attempt(3))
+async def semantic_search_journeys(user_id: str, query: str) -> str | None:
+    if not user_id or not query:
+        return None
+        
+    embedding = await _get_embedding(query)
+    if not embedding:
+        return None
+        
+    pool = await get_pool()
+    if not pool:
+        return None
+        
+    try:
+        # Requires pgvector extension and story_embedding column
+        async with pool.acquire() as conn:
+            # Find the most semantically similar past story using L2 distance (<->)
+            row = await conn.fetchrow(
+                "SELECT story_text FROM story_history WHERE user_id = $1 AND story_embedding IS NOT NULL ORDER BY story_embedding <-> $2::vector LIMIT 1",
+                str(user_id).strip(), json.dumps(embedding)
+            )
+            if row:
+                return row["story_text"]
+    except Exception as e:
+        logger.error(f"Semantic search failed for user {user_id}: {e}")
+        
     return None
