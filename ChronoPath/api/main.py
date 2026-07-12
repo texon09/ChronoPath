@@ -1,5 +1,6 @@
 import structlog
 from fastapi import FastAPI, HTTPException, Response
+from fastapi.staticfiles import StaticFiles
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, Counter, Histogram
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 import time
@@ -24,6 +25,11 @@ REQUEST_LATENCY = Histogram('request_latency_seconds', 'Request latency', ['endp
 
 settings = get_settings()
 app = FastAPI(title=settings.app_name)
+
+import os
+os.makedirs("media", exist_ok=True)
+app.mount("/media", StaticFiles(directory="media"), name="media")
+
 supervisor = SupervisorAgent()
 
 FastAPIInstrumentor.instrument_app(app)
