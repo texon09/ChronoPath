@@ -61,10 +61,33 @@ async def reverse_geocode(lat: float, lng: float) -> dict:
                     )
                     return result.model_dump()
         except Exception as e:
-            print(f"reverse_geocode error: {e}")
+            print(f"reverse_geocode google error: {e}")
             pass
             
-    # If no key or fails, gracefully return unknown but validated
+    # Free Fallback: OpenStreetMap Nominatim
+    try:
+        url = f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lng}&format=jsonv2"
+        headers = {"User-Agent": "ChronoPath/1.0 (opensource@chronopath.ai)"}
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(url, headers=headers)
+            resp.raise_for_status()
+            data = resp.json()
+            if data and "address" in data:
+                addr = data["address"]
+                result = GeoResult(
+                    city=addr.get("city", addr.get("town", addr.get("village", "Unknown"))),
+                    state=addr.get("state", "Unknown"),
+                    country=addr.get("country", "Unknown"),
+                    lat=lat,
+                    lng=lng,
+                    display_name=data.get("display_name", "Unknown Location")
+                )
+                return result.model_dump()
+    except Exception as e:
+        print(f"reverse_geocode OSM fallback error: {e}")
+        pass
+
+    # Final Fallback
     return GeoResult(
         city="Unknown", state="Unknown", country="Unknown",
         lat=lat, lng=lng, display_name="Unknown Location"
@@ -115,7 +138,11 @@ async def heritage_lookup(lat: float, lng: float) -> dict:
 
     # Fallback to prevent crash if no API key or no places found nearby
     rev = await reverse_geocode(lat, lng)
-    place_name = rev.get("display_name", "Unknown Location") if rev else "Unknown Location"
+    
+    # In OSM format, display_name is usually "Place Name, City, Country..."
+    # Let's extract the first part of the address as the Place Name
+    raw_name = rev.get("display_name", "Unknown Location")
+    place_name = raw_name.split(",")[0] if "," in raw_name else raw_name
     
     return HeritageResult(
         place=place_name, lat=lat, lng=lng,
