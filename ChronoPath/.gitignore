@@ -216,3 +216,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local users database
+users_db.json
+
+# Local generated media
+media/audio_*
+media/visual_*
+media/visual_*
+media/audio_*
