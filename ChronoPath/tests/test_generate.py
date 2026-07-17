@@ -2,10 +2,15 @@ import unittest
 from unittest.mock import patch
 from fastapi.testclient import TestClient
 from api.main import app
+from core.auth import get_current_user
 
 class GenerateEndpointTest(unittest.TestCase):
     def setUp(self):
+        app.dependency_overrides[get_current_user] = lambda: "tourist"
         self.client = TestClient(app)
+
+    def tearDown(self):
+        app.dependency_overrides.clear()
 
     @patch('agents.supervisor.SupervisorAgent.execute')
     def test_generate_returns_story(self, mock_execute):

@@ -19,6 +19,9 @@ from core.session import SessionState
 from schemas import GenerateResponse, TextResponse
 
 
+from adk.loop import FeedbackLoop
+from agents.reviewer_agent import ReviewerAgent
+
 class SupervisorAgent:
     def __init__(self):
         self.location_agent = LocationAgent()
@@ -26,6 +29,7 @@ class SupervisorAgent:
         self.journey_agent = JourneyAgent()
         self.context_agent = ContextAggregator()
         self.narrative_agent = NarrativeAgent()
+        self.reviewer_agent = ReviewerAgent()
         self.safety_agent = SafetyAgent()
         self.delivery_agent = DeliveryAgent()
         self.media_agent = MediaAgent()
@@ -38,7 +42,11 @@ class SupervisorAgent:
                 AgentAdapter(self.journey_agent),
             ]),
             AgentAdapter(self.context_agent),
-            AgentAdapter(self.narrative_agent),
+            FeedbackLoop(
+                AgentAdapter(self.narrative_agent),
+                AgentAdapter(self.reviewer_agent),
+                max_attempts=3
+            ),
             ParallelRunner([
                 AgentAdapter(self.safety_agent),
                 AgentAdapter(self.delivery_agent),

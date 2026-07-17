@@ -10,7 +10,7 @@ async def test_geo_tool_fallback():
     assert res["city"] == "Unknown"
     
     h_res = await heritage_lookup(0, 0)
-    assert h_res["place"] == "Unknown Heritage Site"
+    assert h_res["place"] == "Unknown Location"
 
 @pytest.mark.asyncio
 async def test_history_tool_fallback():

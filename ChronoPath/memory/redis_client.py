@@ -6,10 +6,14 @@ from core.cache import get_redis
 logger = logging.getLogger("chronopath.memory.redis_client")
 
 class RedisClient:
+    _is_offline = False
+
     def __init__(self):
         self._client = None
 
     async def get_client(self):
+        if RedisClient._is_offline:
+            raise ConnectionError("Redis is marked offline")
         if self._client is None:
             self._client = await get_redis()
         return self._client
@@ -19,6 +23,7 @@ class RedisClient:
             client = await self.get_client()
             return await client.get(key)
         except Exception as e:
+            RedisClient._is_offline = True
             logger.error("Redis get failed for key %s: %s", key, e)
             return None
 
@@ -28,6 +33,7 @@ class RedisClient:
             await client.set(key, value, ex=ttl)
             return True
         except Exception as e:
+            RedisClient._is_offline = True
             logger.error("Redis setex failed for key %s: %s", key, e)
             return False
 
@@ -37,6 +43,7 @@ class RedisClient:
             await client.delete(key)
             return True
         except Exception as e:
+            RedisClient._is_offline = True
             logger.error("Redis delete failed for key %s: %s", key, e)
             return False
 
@@ -45,6 +52,7 @@ class RedisClient:
             client = await self.get_client()
             return await client.lpush(key, value)
         except Exception as e:
+            RedisClient._is_offline = True
             logger.error("Redis lpush failed for key %s: %s", key, e)
             return None
 
@@ -54,6 +62,7 @@ class RedisClient:
             await client.ltrim(key, start, stop)
             return True
         except Exception as e:
+            RedisClient._is_offline = True
             logger.error("Redis ltrim failed for key %s: %s", key, e)
             return False
 
@@ -63,5 +72,6 @@ class RedisClient:
             await client.expire(key, ttl)
             return True
         except Exception as e:
+            RedisClient._is_offline = True
             logger.error("Redis expire failed for key %s: %s", key, e)
             return False

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChronoPath AI — Chronology Navigator</title>
+    <!-- Google Fonts: Cinzel for Display/Headings, Lora for literary serif body text -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- HEADER (Shared Navigation Bar) -->
+        <header id="main-header" class="hidden">
+            <div class="logo">
+                <span class="symbol">⚜</span>
+                <h1 class="brand-title">ChronoPath AI</h1>
+            </div>
+            <nav class="nav-links">
+                <span id="user-display" class="user-badge">Explorer: tourist</span>
+                <button id="logout-btn" class="wax-seal-btn">Sign Out</button>
+            </nav>
+        </header>
+
+        <!-- VIEW 1: AUTHENTICATION (Ledger Guestbook) -->
+        <main id="login-view" class="view">
+            <div class="ledger-container">
+                <div class="ledger-header">
+                    <span class="flourish">❧</span>
+                    <h2 id="auth-title">Chronicle Registry</h2>
+                    <p class="ledger-subtitle" id="auth-subtitle">Sign the Guestbook to unlock the pathways of history</p>
+                </div>
+                
+                <!-- LOGIN FORM -->
+                <form id="login-form" class="ledger-form">
+                    <div class="input-group">
+                        <label for="username">Explorer Name</label>
+                        <input type="text" id="username" required placeholder="e.g., tourist">
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Secret Keyphrase</label>
+                        <input type="password" id="password" required placeholder="e.g., explore2026">
+                    </div>
+                    <div id="login-error" class="alert error hidden">
+                        <span class="alert-icon">⚠️</span>
+                        <span id="login-error-text">Credentials rejected by the registry.</span>
+                    </div>
+                    <button type="submit" class="ink-btn">Unlock Ledger</button>
+                    
+                    <div class="auth-toggle-link">
+                        <p>First time here? <a href="#" id="show-register-btn">Create New Explorer ID</a></p>
+                    </div>
+                </form>
+
+                <!-- REGISTER FORM (Hidden by default) -->
+                <form id="register-form" class="ledger-form hidden">
+                    <div class="input-group">
+                        <label for="reg-username">New Explorer Name</label>
+                        <input type="text" id="reg-username" required placeholder="At least 3 characters">
+                    </div>
+                    <div class="input-group">
+                        <label for="reg-password">Choose Secret Keyphrase</label>
+                        <input type="password" id="reg-password" required placeholder="At least 4 characters">
+                    </div>
+                    <div id="register-error" class="alert error hidden">
+                        <span class="alert-icon">⚠️</span>
+                        <span id="register-error-text">Registration rejected.</span>
+                    </div>
+                    <button type="submit" class="ink-btn">Register & Sign In</button>
+                    
+                    <div class="auth-toggle-link">
+                        <p>Already registered? <a href="#" id="show-login-btn">Sign In to Guestbook</a></p>
+                    </div>
+                </form>
+
+                <div class="ledger-footer">
+                    <p>Standard Explorer credentials: <code>tourist / explore2026</code></p>
+                </div>
+            </div>
+        </main>
+
+        <!-- VIEW 2: DASHBOARD (Split Desk and Chronicle) -->
+        <main id="dashboard-view" class="view hidden">
+            <div class="desk-layout">
+                <!-- LEFT SIDEBAR: Navigation Desk -->
+                <aside class="desk-panel sidebar">
+                    <div class="panel-section">
+                        <h3><span class="icon">🧭</span> Coordinates</h3>
+                        <div class="coords-row">
+                            <div class="input-group small">
+                                <label for="lat">Latitude</label>
+                                <input type="number" id="lat" step="0.0001" min="-90" max="90" value="18.5196">
+                            </div>
+                            <div class="input-group small">
+                                <label for="lng">Longitude</label>
+                                <input type="number" id="lng" step="0.0001" min="-180" max="180" value="73.8553">
+                            </div>
+                        </div>
+                        <button id="geo-btn" class="scroll-btn secondary-btn">Consult Compass</button>
+                    </div>
+
+                    <div class="panel-section">
+                        <h3><span class="icon">🎚</span> Explorer Profile</h3>
+                        <div class="input-group">
+                            <label for="age">Age Selection</label>
+                            <input type="number" id="age" min="1" max="150" placeholder="Adapt reading depth">
+                        </div>
+                        <div class="input-group">
+                            <label for="origin">Home Origin</label>
+                            <input type="text" id="origin" placeholder="e.g., Pune, London (for parallels)">
+                        </div>
+                        <div class="input-group">
+                            <label for="background">Profession / Interests</label>
+                            <input type="text" id="background" placeholder="e.g., Architect, Historian">
+                        </div>
+                        <div class="input-group">
+                            <label for="language">Narrative Tongue</label>
+                            <select id="language">
+                                <option value="English">English</option>
+                                <option value="Marathi">Marathi</option>
+                                <option value="Hindi">Hindi</option>
+                                <option value="Spanish">Spanish</option>
+                                <option value="French">French</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <h3><span class="icon">📡</span> Signal strength</h3>
+                        <div class="input-group">
+                            <select id="network">
+                                <option value="good">High Quality (Full Audio/Visual)</option>
+                                <option value="medium">Medium Quality (Audio Only)</option>
+                                <option value="low">Low Quality (Text Only)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button id="generate-btn" class="ink-btn primary-btn">Invoke Chronicle</button>
+                </aside>
+
+                <!-- RIGHT MAIN: Chronicle Panel -->
+                <section class="desk-panel main-chronicle">
+                    <!-- Loading State -->
+                    <div id="chronicle-loader" class="loader-view hidden">
+                        <div class="hourglass">⏳</div>
+                        <h3>Consulting Archives...</h3>
+                        <p>Weaving the thread of time, please wait.</p>
+                    </div>
+
+                    <!-- Welcome / Idle State -->
+                    <div id="chronicle-idle" class="idle-view">
+                        <div class="compass-rose">❈</div>
+                        <h2>Begin Your Journey</h2>
+                        <p>Point the compass coordinate dials, adjust your explorer settings, and click <strong>Invoke Chronicle</strong> to call forth the history of the land.</p>
+                    </div>
+
+                    <!-- Chronicle Content State -->
+                    <div id="chronicle-content" class="content-view hidden">
+                        <div class="chronicle-parchment">
+                            <div class="parchment-header">
+                                <span class="era-badge" id="chronicle-era">Historical Era</span>
+                                <h2 id="chronicle-title" class="historical-title">Landmark Name</h2>
+                            </div>
+                            
+                            <!-- Large Cinematic Image Frame -->
+                            <div id="chronicle-visual-frame" class="visual-frame hidden">
+                                <img id="chronicle-visual" src="" alt="Historical Visual representation">
+                            </div>
+
+                            <article class="narrative-body">
+                                <p id="chronicle-story">Narrative text goes here...</p>
+                            </article>
+
+                            <!-- Audio Narration Player -->
+                            <div id="chronicle-audio-panel" class="audio-panel hidden">
+                                <h4><span class="icon">🔊</span> Narration Voice</h4>
+                                <div class="custom-audio-player">
+                                    <audio id="chronicle-audio" controls src=""></audio>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Secondary scroll with metadata & grounding facts -->
+                        <div class="chronicle-notes">
+                            <div class="notes-header">
+                                <h3>📜 Registry Notes</h3>
+                            </div>
+                            <div class="notes-content">
+                                <div class="meta-grid">
+                                    <div class="meta-item">
+                                        <strong>Confidence:</strong>
+                                        <span id="note-confidence">100%</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <strong>Response Time:</strong>
+                                        <span id="note-latency">0 ms</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <strong>Storage Mode:</strong>
+                                        <span id="note-cache">Fresh Compile</span>
+                                    </div>
+                                </div>
+                                <div class="grounding-section">
+                                    <strong>Verified Grounding Facts:</strong>
+                                    <ul id="note-facts" class="facts-list">
+                                        <li>No facts found.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- FOOTER TIMELINE: Chronicle Scroll (History) -->
+            <footer class="chronicle-scroll-footer">
+                <div class="scroll-header">
+                    <h3>📜 Visited Chronology</h3>
+                </div>
+                <div class="timeline-slider">
+                    <div id="timeline-list" class="timeline-row">
+                        <!-- Visited items will render here dynamically -->
+                        <span class="empty-timeline">No history recorded in this session.</span>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+    
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
