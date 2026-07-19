@@ -18,6 +18,12 @@ class LocationAgent:
         heritage = await heritage_lookup(lat, lng)
         place_name = heritage["place"]
         
+        # Token-Efficient Contextual Scoping
+        # We append just the state and country to disambiguate without wasting tokens on full coordinates
+        state = geo.get("state", "")
+        country = geo.get("country", "")
+        qualified_place_name = f"{place_name}, {state}, {country}".strip(', ')
+        
         # Agentic RAG Router
         api_key = os.getenv("GOOGLE_API_KEY")
         if api_key:
@@ -25,7 +31,7 @@ class LocationAgent:
             
         model = genai.GenerativeModel("gemini-3.5-flash", generation_config={"response_mime_type": "application/json"})
         router_prompt = (
-            f"Do you have deep, accurate historical knowledge about '{place_name}'? "
+            f"Do you have deep, accurate historical knowledge about '{qualified_place_name}'? "
             f"If it is a famous landmark, respond with 'is_famous': true and provide a 'context' and a list of 'facts'. "
             f"If it is obscure, respond with 'is_famous': false. "
             f"Return JSON strictly with keys: 'is_famous' (boolean), 'context' (string), 'facts' (list of strings)."
@@ -42,14 +48,14 @@ class LocationAgent:
             router_decision = {"is_famous": False}
             
         if router_decision.get("is_famous"):
-            print(f"Agentic Router: Skipping Wikipedia, using internal LLM memory for {place_name}")
+            print(f"Agentic Router: Skipping Wikipedia, using internal LLM memory for {qualified_place_name}")
             history = {
-                "context": router_decision.get("context", f"{place_name} History"),
+                "context": router_decision.get("context", f"{qualified_place_name} History"),
                 "facts": router_decision.get("facts", [])
             }
         else:
-            print(f"Agentic Router: Place obscure, falling back to Wikipedia for {place_name}")
-            history = await fetch_history(place_name)
+            print(f"Agentic Router: Place obscure, falling back to Wikipedia for {qualified_place_name}")
+            history = await fetch_history(qualified_place_name)
             
         conf = await confidence_score(heritage["distance_km"])
 
