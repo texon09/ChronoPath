@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import get_settings
 from agents.supervisor import SupervisorAgent
 from schemas import GenerateRequest, GenerateResponse
-from core.auth import get_current_user, verify_password, create_access_token, load_users, save_users, get_password_hash
+from core.auth import get_current_user
 
 # Configure structlog
 structlog.configure(
@@ -73,50 +73,9 @@ async def metrics():
 
 from pydantic import BaseModel
 
-class RegisterRequest(BaseModel):
-    username: str
-    password: str
 
-@app.post("/api/auth/register")
-async def register(req: RegisterRequest):
-    username = req.username.strip()
-    password = req.password.strip()
-    if len(username) < 3 or len(password) < 4:
-        raise HTTPException(
-            status_code=400,
-            detail="Explorer name must be >= 3 chars, Keyphrase must be >= 4 chars"
-        )
-    users = load_users()
-    if username in users:
-        raise HTTPException(
-            status_code=400,
-            detail="Explorer name is already registered"
-        )
-    
-    users[username] = {
-        "username": username,
-        "hashed_password": get_password_hash(password),
-        "role": "explorer"
-    }
-    save_users(users)
-    
-    access_token = create_access_token(data={"sub": username})
-    return {"access_token": access_token, "token_type": "bearer", "username": username}
 
-@app.post("/api/auth/login")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    username = form_data.username
-    password = form_data.password
-    users = load_users()
-    user = users.get(username)
-    if not user or not verify_password(password, user["hashed_password"]):
-        raise HTTPException(
-            status_code=401,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    access_token = create_access_token(data={"sub": username})
-    return {"access_token": access_token, "token_type": "bearer", "username": username}
+
 
 @app.post("/generate", response_model=GenerateResponse)
 async def generate(request: GenerateRequest, current_user: str = Depends(get_current_user)):

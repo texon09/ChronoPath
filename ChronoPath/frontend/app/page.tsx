@@ -15,6 +15,7 @@ import StoryScreen from "../components/screens/StoryScreen";
 import TimelineScreen from "../components/screens/TimelineScreen";
 import ProfileScreen from "../components/screens/ProfileScreen";
 import ErrorScreen, { ErrorType } from "../components/screens/ErrorScreen";
+import { LoginScreen } from "../components/screens/LoginScreen";
 
 import { generateStory, savePlaceToJourney } from "../services/api";
 import { GenerateResponse } from "../types";
@@ -38,6 +39,11 @@ function ChronoPathAppContent() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [lastExploreOptions, setLastExploreOptions] = useState<any>(null);
 
+  // Firebase Auth State
+  const [user, setUser] = useState<any>(null);
+  const [authChecking, setAuthChecking] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
   // Monitor online status
   const [isOnline, setIsOnline] = useState(true);
 
@@ -48,6 +54,14 @@ function ChronoPathAppContent() {
       const handleOffline = () => setIsOnline(false);
       window.addEventListener("online", handleOnline);
       window.addEventListener("offline", handleOffline);
+
+      import("../services/firebase").then(({ auth }) => {
+        auth.onAuthStateChanged((u) => {
+          setUser(u);
+          setAuthChecking(false);
+        });
+      });
+
       return () => {
         window.removeEventListener("online", handleOnline);
         window.removeEventListener("offline", handleOffline);
@@ -56,11 +70,20 @@ function ChronoPathAppContent() {
   }, []);
 
   const handleStartJourney = () => {
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
     if (coords) {
       setActiveScreen("explore");
     } else {
       setActiveScreen("permission");
     }
+  };
+
+  const handleLoginSuccess = () => {
+    setShowLoginModal(false);
+    handleStartJourney(); // Re-trigger journey start now that user is logged in
   };
 
   const handlePermissionGranted = (userCoords: { lat: number; lng: number }) => {
@@ -204,12 +227,13 @@ function ChronoPathAppContent() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen relative">
       <Navbar activeScreen={activeScreen} setActiveScreen={setActiveScreen} />
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 flex flex-col justify-center">
         {renderScreen()}
       </main>
       <Footer />
+      {showLoginModal && <LoginScreen onSuccess={handleLoginSuccess} />}
     </div>
   );
 }

@@ -149,6 +149,7 @@ activemq-data/
 
 # Environments
 .env
+.env.*
 .envrc
 .venv
 env/
@@ -223,5 +224,7 @@ users_db.json
 # Local generated media
 media/audio_*
 media/visual_*
-media/visual_*
-media/audio_*
+
+# Sensitive keys and credentials
+*.json
+!users_db.json

@@ -67,6 +67,12 @@ class MemoryManager:
         pool = await get_pool()
         if pool:
             try:
+                # Generate embedding for the story text if provided
+                embedding = None
+                if story_text:
+                    from tools.journey_tool import _get_embedding
+                    embedding = await _get_embedding(story_text)
+
                 async with pool.acquire() as conn:
                     async with conn.transaction():
                         await conn.execute(
@@ -74,10 +80,16 @@ class MemoryManager:
                             str(user_id), place
                         )
                         if request_id and story_text:
-                            await conn.execute(
-                                "INSERT INTO story_history (user_id, request_id, story_text) VALUES ($1, $2, $3)",
-                                str(user_id), request_id, story_text
-                            )
+                            if embedding:
+                                await conn.execute(
+                                    "INSERT INTO story_history (user_id, request_id, story_text, story_embedding) VALUES ($1, $2, $3, $4::vector)",
+                                    str(user_id), request_id, story_text, json.dumps(embedding)
+                                )
+                            else:
+                                await conn.execute(
+                                    "INSERT INTO story_history (user_id, request_id, story_text) VALUES ($1, $2, $3)",
+                                    str(user_id), request_id, story_text
+                                )
             except Exception as e:
                 logger.error("Failed to save journey to database for user %s: %s", user_id, e)
                 success = False

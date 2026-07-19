@@ -10,6 +10,26 @@ const apiClient = axios.create({
   },
 });
 
+import { auth } from "./firebase";
+
+// Automatic Authentication Interceptor
+apiClient.interceptors.request.use(async (config) => {
+  if (config.url === "/generate") {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const token = await user.getIdToken(true);
+        config.headers.Authorization = `Bearer ${token}`;
+      } catch (err) {
+        console.error("Failed to get Firebase token", err);
+      }
+    } else {
+        console.warn("No authenticated user, request to /generate may fail.");
+    }
+  }
+  return config;
+});
+
 export const health = async (): Promise<{ status: string; app: string; environment: string }> => {
   const response = await apiClient.get("/health");
   return response.data;
