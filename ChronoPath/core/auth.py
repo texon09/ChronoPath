@@ -9,9 +9,11 @@ from firebase_admin import credentials, auth
 try:
     firebase_admin.get_app()
 except ValueError:
-    # Explicitly load from firebase-admin.json so it doesn't conflict with Vertex AI credentials
-    cred = credentials.Certificate("firebase-admin.json")
-    firebase_admin.initialize_app(cred)
+    try:
+        cred = credentials.Certificate("firebase-admin.json")
+        firebase_admin.initialize_app(cred)
+    except FileNotFoundError:
+        print("Warning: firebase-admin.json not found. Firebase features may not work during testing.")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
