@@ -19,7 +19,7 @@ class NarrativeAgent:
         background = context.get("background")
 
         prompt = (
-            f"Write a detailed, highly engaging 4-5 sentence historical explanation for a user standing near {place}. "
+            f"Write a detailed, comprehensive, and highly engaging 8-10 sentence historical explanation for a user standing near {place}. "
             f"The historical context is {era}. "
             f"Ensure you discuss both the deep history of {place} and how it has evolved over the years to its present state. "
             f"The user is interested in: {', '.join(interests) if interests else 'general history'}. "
@@ -41,7 +41,7 @@ class NarrativeAgent:
         try:
             api_key = os.getenv("GOOGLE_API_KEY")
             if api_key:
-                genai.configure(api_key=api_key)
+                genai.configure(api_key=api_key, transport='rest')
                 
             model = genai.GenerativeModel("gemini-3.5-flash")
             
@@ -50,7 +50,8 @@ class NarrativeAgent:
             creds = os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
             
             try:
-                response = await model.generate_content_async(prompt)
+                loop = asyncio.get_running_loop()
+                response = await loop.run_in_executor(None, lambda: model.generate_content(prompt))
                 story = response.text
             finally:
                 if creds is not None:

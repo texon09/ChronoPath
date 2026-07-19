@@ -51,15 +51,21 @@ class ReviewerAgent:
         try:
             api_key = os.getenv("GOOGLE_API_KEY")
             if api_key:
-                genai.configure(api_key=api_key)
+                genai.configure(api_key=api_key, transport='rest')
                 
             model = genai.GenerativeModel("gemini-3.5-flash", generation_config={"response_mime_type": "application/json"})
             
             creds = os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
             
             try:
-                response = await model.generate_content_async(prompt)
-                result_text = response.text
+                loop = asyncio.get_running_loop()
+                response = await loop.run_in_executor(None, lambda: model.generate_content(prompt))
+                result_text = response.text.strip()
+                if result_text.startswith("```json"):
+                    result_text = result_text[7:]
+                if result_text.endswith("```"):
+                    result_text = result_text[:-3]
+                result_text = result_text.strip()
                 result = json.loads(result_text)
             finally:
                 if creds is not None:

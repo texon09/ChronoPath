@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: var(--font-playfair);
+  --font-sans: var(--font-poppins);
+
+  --color-parchment-light: #FDFBF7;
+  --color-parchment-base: #F7F3EB;
+  --color-parchment-dark: #ECE4D5;
+  --color-brown-base: #2A1D19;
+  --color-brown-light: #3E2F2B;
+  --color-brown-dark: #190F0C;
+  --color-gold-base: #C5A880;
+  --color-gold-bright: #E5C396;
+  --color-gold-dark: #A3855E;
+  --color-navy-base: #1A2F4C;
+  --color-navy-dark: #0F1D30;
+}
+
+:root {
+  --background: #FDFBF7;
+  --foreground: #2A1D19;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-poppins), sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FDFBF7;
+}
+::-webkit-scrollbar-thumb {
+  background: #ECE4D5;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C5A880;
+}
+
+/* Elegant parchment container card */
+.parchment-card {
+  background-color: #F7F3EB;
+  border: 1px solid #ECE4D5;
+  box-shadow: 0 4px 20px -2px rgba(42, 29, 25, 0.05), 0 2px 4px -1px rgba(42, 29, 25, 0.03);
+  position: relative;
+}
+
+.parchment-card::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(197, 168, 128, 0.2);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
