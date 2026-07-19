@@ -15,12 +15,13 @@ class MediaAgent:
     async def execute(self, state):
         narrative = state.get("story", {}).get("story", "")
         place = state.get("location", {}).get("place", "Historical Location")
+        language_name = state.get("profile", {}).get("language", "English")
 
         if not narrative:
             return state
 
         # Run TTS and Image Generation in parallel
-        audio_task = self._generate_audio(narrative)
+        audio_task = self._generate_audio(narrative, language_name)
         visual_task = self._generate_visual(place, narrative)
 
         audio_res, visual_res = await asyncio.gather(audio_task, visual_task)
@@ -31,11 +32,23 @@ class MediaAgent:
         })
         return state
 
-    async def _generate_audio(self, text: str) -> dict:
+    async def _generate_audio(self, text: str, language_name: str) -> dict:
         loop = asyncio.get_running_loop()
+        
+        # Map English names to gTTS language codes
+        lang_map = {
+            "marathi": "mr",
+            "hindi": "hi",
+            "french": "fr",
+            "spanish": "es",
+            "english": "en"
+        }
+        lang_code = lang_map.get(language_name.lower(), "en")
+        
         def _generate():
             try:
-                tts = gTTS(text=text[:1500], lang='en', tld='co.in', slow=False)
+                # Use the mapped language code, default to 'en'
+                tts = gTTS(text=text[:1500], lang=lang_code, slow=False)
                 filename = f"audio_{uuid.uuid4().hex}.mp3"
                 filepath = os.path.join("media", filename)
                 tts.save(filepath)
