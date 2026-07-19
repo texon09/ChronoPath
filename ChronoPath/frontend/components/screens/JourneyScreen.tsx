@@ -15,6 +15,7 @@ interface JourneyScreenProps {
     age?: number;
     origin?: string;
     background?: string;
+    name?: string;
   }) => void;
 }
 
@@ -27,6 +28,7 @@ export default function JourneyScreen({
   const [profile, setProfile] = useState<Profile | null>(null);
 
   // Editable settings fields
+  const [name, setName] = useState("");
   const [language, setLanguage] = useState("English");
   const [age, setAge] = useState<number>(25);
   const [origin, setOrigin] = useState("");
@@ -35,6 +37,7 @@ export default function JourneyScreen({
   useEffect(() => {
     getProfile().then((prof) => {
       setProfile(prof);
+      setName(prof.name || "");
       setLanguage(prof.preferredLanguage || "English");
       setAge(prof.age || 25);
       setOrigin(prof.origin || "");
@@ -55,6 +58,7 @@ export default function JourneyScreen({
 
   const handleExploreClick = () => {
     onExplore({
+      name: name || undefined,
       language,
       age,
       origin: origin || undefined,

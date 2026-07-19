@@ -58,7 +58,8 @@ export const getProfile = async (): Promise<Profile> => {
     placesVisitedCount: 0,
     age: 25,
     origin: "Global Explorer",
-    background: "Curious history enthusiast interested in architecture and local heritage."
+    background: "Curious history enthusiast interested in architecture and local heritage.",
+    name: "Traveler"
   };
   localStorage.setItem(PROFILE_KEY, JSON.stringify(defaultProfile));
   return defaultProfile;

@@ -6,6 +6,7 @@ export interface GenerateRequest {
   age?: number;
   origin?: string;
   background?: string;
+  name?: string;
 }
 
 export interface PlaceResponse {
@@ -65,4 +66,5 @@ export interface Profile {
   age?: number;
   origin?: string;
   background?: string;
+  name?: string;
 }

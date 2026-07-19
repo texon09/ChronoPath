@@ -103,6 +103,7 @@ function ChronoPathAppContent() {
     age?: number;
     origin?: string;
     background?: string;
+    name?: string;
   }) => {
     if (!isOnline) {
       setErrorType("NO_INTERNET");

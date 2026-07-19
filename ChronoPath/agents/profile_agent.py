@@ -19,5 +19,7 @@ class ProfileAgent:
             profile["origin"] = payload["origin"]
         if payload.get("background"):
             profile["background"] = payload["background"]
+        if payload.get("name"):
+            profile["name"] = payload["name"]
         return profile
 

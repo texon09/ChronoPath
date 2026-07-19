@@ -12,6 +12,7 @@ export default function ProfileScreen() {
   const [savedStatus, setSavedStatus] = useState(false);
 
   // Form states
+  const [name, setName] = useState("");
   const [language, setLanguage] = useState("English");
   const [age, setAge] = useState<number>(25);
   const [origin, setOrigin] = useState("");
@@ -20,6 +21,7 @@ export default function ProfileScreen() {
   useEffect(() => {
     getProfile().then((prof) => {
       setProfile(prof);
+      setName(prof.name || "");
       setLanguage(prof.preferredLanguage || "English");
       setAge(prof.age || 25);
       setOrigin(prof.origin || "");
@@ -31,6 +33,7 @@ export default function ProfileScreen() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const updated = await updateProfile({
+      name,
       preferredLanguage: language,
       age,
       origin,
@@ -102,6 +105,21 @@ export default function ProfileScreen() {
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Name */}
+          <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <label className="text-xs font-semibold text-brown-light flex items-center gap-1">
+              <User className="h-3.5 w-3.5" />
+              <span>Hey what should Chrono call you?</span>
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Alex"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="border border-parchment-dark bg-parchment-base text-sm text-brown-dark rounded-lg p-2 placeholder:text-brown-light/40 focus:outline-none focus:ring-1 focus:ring-gold-base"
+            />
+          </div>
+
           {/* Preferred Language */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-brown-light flex items-center gap-1">

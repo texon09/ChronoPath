@@ -11,6 +11,7 @@ class GenerateRequest(BaseModel):
     age: int | None = None
     origin: str | None = None
     background: str | None = None
+    name: str | None = None
 
     @model_validator(mode="after")
     def normalize_coordinates(self):
@@ -31,4 +32,5 @@ class GenerateRequest(BaseModel):
             "age": self.age,
             "origin": self.origin,
             "background": self.background,
+            "name": self.name,
         }

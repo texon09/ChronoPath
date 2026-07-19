@@ -42,6 +42,7 @@ class ContextAggregator:
             "age": profile.get("age"),
             "origin": profile.get("origin"),
             "background": profile.get("background"),
+            "name": profile.get("name"),
             "visited_places": journey.get("visited_places", []),
             "facts": facts,
             "prompt_context": prompt,

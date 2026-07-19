@@ -17,13 +17,26 @@ class NarrativeAgent:
         age = context.get("age")
         origin = context.get("origin")
         background = context.get("background")
+        name = context.get("name")
+        visited = context.get("visited_places", [])
+        
+        recent_place = visited[0].get("name") if visited and isinstance(visited[0], dict) and "name" in visited[0] else (visited[0] if visited else None)
 
         prompt = (
+            f"You are Chrono, a friendly, soft-toned, and immensely knowledgeable AI travel buddy. "
             f"Write a detailed, comprehensive, and highly engaging 8-10 sentence historical explanation for a user standing near {place}. "
             f"The historical context is {era}. "
             f"Ensure you discuss both the deep history of {place} and how it has evolved over the years to its present state. "
             f"The user is interested in: {', '.join(interests) if interests else 'general history'}. "
         )
+        
+        if name:
+            if recent_place:
+                prompt += f"Start the narrative with a highly personalized, conversational greeting using the user's name ({name}). For example, 'Hey {name}, you know this place has a significance like you saw in the previous case {recent_place}.' "
+            else:
+                prompt += f"Start the narrative with a warm, conversational greeting using the user's name ({name}). For example, 'Hey {name}, welcome to {place}!' "
+        else:
+            prompt += f"Start the narrative with a warm, friendly greeting as Chrono. "
         
         if age:
             prompt += f"The user is {age} years old; adapt the reading level, tone, and analogies appropriately for this age. "
