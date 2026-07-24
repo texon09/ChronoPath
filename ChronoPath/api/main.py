@@ -11,7 +11,7 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from fastapi.middleware.cors import CORSMiddleware
 from config import get_settings
 from agents.supervisor import SupervisorAgent
-from schemas import GenerateRequest, GenerateResponse
+from schemas import GenerateRequest, GenerateResponse, FeedbackRequest
 from core.auth import get_current_user
 
 # Configure structlog
@@ -71,11 +71,26 @@ async def health():
 async def metrics():
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
-from pydantic import BaseModel
+from core.db import get_pool
 
-
-
-
+@app.post("/feedback")
+async def record_feedback(request: FeedbackRequest, current_user: str = Depends(get_current_user)):
+    logger.info("feedback_received", request_id=request.request_id, rating=request.rating)
+    pool = await get_pool()
+    if pool:
+        try:
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    "INSERT INTO user_feedback (user_id, request_id, rating) VALUES ($1, $2, $3)",
+                    current_user, request.request_id, request.rating
+                )
+            return {"status": "success"}
+        except Exception as e:
+            logger.error("feedback_db_error", error=str(e))
+            return {"status": "error", "detail": "Database error"}
+    else:
+        # DB offline, ignore feedback silently
+        return {"status": "ignored", "detail": "Database offline"}
 
 @app.post("/generate", response_model=GenerateResponse)
 async def generate(request: GenerateRequest, current_user: str = Depends(get_current_user)):

@@ -1,4 +1,5 @@
 from tools.journey_tool import semantic_search_journeys
+from memory.memory_manager import MemoryManager
 
 class ContextAggregator:
     async def execute(self, state):
@@ -16,11 +17,16 @@ class ContextAggregator:
             if past_story:
                 semantic_memory = f"SEMANTIC MEMORY (Prioritize drawing an analogy to this past trip): {past_story}"
         
-        context = self.run(location, profile, journey, semantic_memory)
+        feedback_score = 0
+        if user_id:
+            mgr = MemoryManager()
+            feedback_score = await mgr.get_feedback_score(user_id)
+        
+        context = self.run(location, profile, journey, semantic_memory, feedback_score)
         state.set("context", context)
         return state
 
-    def run(self, location, profile, journey, semantic_memory):
+    def run(self, location, profile, journey, semantic_memory, feedback_score=0):
         interests = ", ".join(profile.get("interests", [])) or "history"
         visited = ", ".join(journey.get("visited_places", [])) or "no prior stops"
         facts = location.get("facts", [])
@@ -46,4 +52,5 @@ class ContextAggregator:
             "visited_places": journey.get("visited_places", []),
             "facts": facts,
             "prompt_context": prompt,
+            "feedback_score": feedback_score,
         }

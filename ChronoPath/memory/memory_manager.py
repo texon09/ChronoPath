@@ -109,3 +109,17 @@ class MemoryManager:
             logger.error("Failed to invalidate session for user %s: %s", user_id, e)
             success = False
         return success
+
+    async def get_feedback_score(self, user_id: str) -> int:
+        pool = await get_pool()
+        if pool:
+            try:
+                async with pool.acquire() as conn:
+                    row = await conn.fetchrow(
+                        "SELECT SUM(rating) as score FROM user_feedback WHERE user_id = $1",
+                        str(user_id)
+                    )
+                    return row['score'] if row and row['score'] else 0
+            except Exception as e:
+                logger.error("Failed to retrieve feedback score for user %s: %s", user_id, e)
+        return 0

@@ -44,6 +44,13 @@ class NarrativeAgent:
             prompt += f"The user is originally from {origin}; draw deeply relatable historical parallels between {place} and the history of {origin}. "
         if background:
             prompt += f"The user's background/profession is '{background}'; emphasize historical aspects, architecture, or events that align with this background. "
+
+        feedback_score = context.get("feedback_score", 0)
+        if feedback_score < 0:
+            prompt += f"Note: The user has generally disliked your previous stories (score: {feedback_score}). Try to be more engaging, concise, and accurate in this generation to win back their approval. "
+        elif feedback_score > 0:
+            prompt += f"Note: The user has generally liked your previous stories (score: {feedback_score}). Keep up the great storytelling style! "
+
             
         feedback = context.get("feedback")
         if feedback:

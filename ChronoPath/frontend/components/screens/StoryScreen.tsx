@@ -2,10 +2,11 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Copy, Share2, Compass, Check, BookOpen, Clock } from "lucide-react";
+import { Copy, Share2, Compass, Check, BookOpen, Clock, ThumbsUp, ThumbsDown } from "lucide-react";
 import { GenerateResponse } from "../../types";
 import AudioPlayer from "../AudioPlayer";
 import ImageViewer from "../ImageViewer";
+import { sendFeedback } from "../../services/api";
 
 interface StoryScreenProps {
   data: GenerateResponse;
@@ -15,6 +16,7 @@ interface StoryScreenProps {
 export default function StoryScreen({ data, onExploreMore }: StoryScreenProps) {
   const [copied, setCopied] = useState(false);
   const [shared, setShared] = useState(false);
+  const [feedbackGiven, setFeedbackGiven] = useState<number | null>(null);
 
   const placeName = typeof data.place === "string" ? data.place : data.place.name;
   const { title, story } = data.text;
@@ -47,6 +49,17 @@ export default function StoryScreen({ data, onExploreMore }: StoryScreenProps) {
         setShared(true);
         setTimeout(() => setShared(false), 2000);
       });
+      });
+    }
+  };
+
+  const handleFeedback = async (rating: number) => {
+    if (feedbackGiven !== null) return;
+    setFeedbackGiven(rating);
+    try {
+      await sendFeedback(data.request_id || "unknown", rating);
+    } catch (e) {
+      console.error("Failed to send feedback", e);
     }
   };
 
@@ -113,6 +126,37 @@ export default function StoryScreen({ data, onExploreMore }: StoryScreenProps) {
           <div className="flex items-center gap-1.5 text-xs font-semibold text-gold-dark">
             <BookOpen className="h-4 w-4" />
             <span>ChronoPath Chronicle</span>
+          </div>
+        </div>
+
+        {/* Feedback Row */}
+        <div className="flex items-center justify-between border-t border-parchment-dark pt-4 mt-2">
+          <span className="text-xs text-brown-light font-medium">How was this story? Chrono will remember!</span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleFeedback(1)}
+              disabled={feedbackGiven !== null}
+              className={`p-2 rounded-lg transition-all ${
+                feedbackGiven === 1 
+                  ? "bg-gold-base/20 text-gold-dark border border-gold-dark" 
+                  : "border border-parchment-dark text-brown-light hover:bg-parchment-dark/30 hover:text-brown-dark"
+              }`}
+              title="Thumbs Up"
+            >
+              <ThumbsUp className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => handleFeedback(-1)}
+              disabled={feedbackGiven !== null}
+              className={`p-2 rounded-lg transition-all ${
+                feedbackGiven === -1 
+                  ? "bg-brown-base/20 text-brown-dark border border-brown-dark" 
+                  : "border border-parchment-dark text-brown-light hover:bg-parchment-dark/30 hover:text-brown-dark"
+              }`}
+              title="Thumbs Down"
+            >
+              <ThumbsDown className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </motion.div>

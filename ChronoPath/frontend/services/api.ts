@@ -40,6 +40,10 @@ export const generateStory = async (data: GenerateRequest): Promise<GenerateResp
   return response.data;
 };
 
+export const sendFeedback = async (requestId: string, rating: number): Promise<void> => {
+  await apiClient.post("/feedback", { request_id: requestId, rating });
+};
+
 // Client-side local storage wrappers for profile and journey persistence since backend currently lacks them
 const PROFILE_KEY = "chronopath_profile";
 const JOURNEY_KEY = "chronopath_journey_history";

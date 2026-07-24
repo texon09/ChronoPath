@@ -34,3 +34,7 @@ class GenerateRequest(BaseModel):
             "background": self.background,
             "name": self.name,
         }
+
+class FeedbackRequest(BaseModel):
+    request_id: str = Field(min_length=1)
+    rating: int = Field(ge=-1, le=1) # -1 for down, 1 for up
