@@ -21,8 +21,8 @@ Acts as the central router. When a user requests a narrative generation, the Sup
 
 ### Sub-Agents
 * **Location Agent**: Interfaces with Google Maps and OpenStreetMap APIs to resolve Latitude/Longitude into a precise point of interest. Utilizes *Contextual Scoping* (appending City, State, Country) to prevent geospatial hallucination.
-* **Context Agent**: Retrieves the user's past journeys from PostgreSQL and semantically retrieves similar historical contexts using embeddings.
-* **Narrative Agent**: The core storyteller. Uses Gemini 3.5 Flash to synthesize the location data and user context into an educational, immersive narrative.
+* **Context Agent**: Retrieves the user's past journeys and implicit feedback scores from PostgreSQL, and semantically retrieves similar historical contexts using embeddings.
+* **Narrative Agent**: The core storyteller. Uses Gemini 3.5 Flash to synthesize the location data, user context, and historical feedback scores into an educational, immersive narrative. It continuously adapts its tone based on the user's historical thumbs up/down ratings.
 * **Reviewer Agent**: Critiques the Narrative Agent's draft for historical accuracy and tone, forcing rewrites if necessary.
 * **Media Agent**: Generates cinematic, historically accurate images of the location using `image.pollinations.ai`.
 * **Safety Agent**: A strict gatekeeper ensuring the narrative contains no PII, prompt injections, or inappropriate content.

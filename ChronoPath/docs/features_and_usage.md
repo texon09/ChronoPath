@@ -19,6 +19,9 @@ ChronoPath AI does not just give you text. The **Media Agent** translates the hi
 ### 5. Semantic Journey Tracking
 As you use the app, it saves your locations and topics to a PostgreSQL database. When you visit a new place, the **Context Agent** performs a vector-based semantic search across your past stories to draw callbacks and connections to places you've been before.
 
+### 6. Implicit AI Learning Loop
+ChronoPath remembers what you like. At the bottom of every generated chronicle, you can leave a thumbs up or thumbs down rating. Over time, Chrono adjusts its storytelling tone, conciseness, and engagement style based on your aggregate feedback score.
+
 ## Usage Guide
 
 1. **Sign In**: Upon opening `http://localhost:3000`, click **Start Journey**. A beautiful glassmorphism popup will prompt you to authenticate via Google Firebase.

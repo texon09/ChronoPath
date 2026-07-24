@@ -44,6 +44,30 @@ This is the core agentic generation endpoint. It delegates to the Supervisor Age
 }
 ```
 
+}
+```
+
+### 2. `POST /feedback`
+This endpoint allows users to submit feedback (thumbs up/down) for a generated story, enabling a continuous learning loop.
+
+**Headers**:
+- `Authorization`: `Bearer <Firebase_JWT>`
+
+**Request Body** (`FeedbackRequest` Schema):
+```json
+{
+  "request_id": "string (UUID)",
+  "rating": "int (-1 for down, 1 for up)"
+}
+```
+
+**Response Body**:
+```json
+{
+  "status": "success"
+}
+```
+
 ## Observability Endpoints
 
 ### 2. `GET /health`
