@@ -29,7 +29,7 @@ const queryClient = new QueryClient({
   },
 });
 
-function Nomad NotesAppContent() {
+function NomadNotesAppContent() {
   const [activeScreen, setActiveScreen] = useState<string>("landing");
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [storyData, setStoryData] = useState<GenerateResponse | null>(null);
@@ -59,6 +59,9 @@ function Nomad NotesAppContent() {
         auth.onAuthStateChanged((u) => {
           setUser(u);
           setAuthChecking(false);
+          if (!u) {
+            setShowLoginModal(true);
+          }
         });
       });
 
@@ -123,7 +126,7 @@ function Nomad NotesAppContent() {
 
     try {
       const response = await generateStory({
-        user_id: "user-1",
+        user_id: user?.uid || "user-1",
         latitude: coords.lat,
         longitude: coords.lng,
         ...options,
@@ -147,6 +150,15 @@ function Nomad NotesAppContent() {
       if (err.code === "ERR_NETWORK" || !err.response) {
         setErrorType("SERVER_UNAVAILABLE");
         setErrorMessage("Could not connect to Nomad Notes backend servers. Make sure your Python server is running on port 8000.");
+      } else if (err.response?.status === 401 || err.response?.status === 403 || err.message?.includes("credentials")) {
+        import("../services/firebase").then(({ auth }) => {
+          auth.signOut();
+          setUser(null);
+        });
+        toast.error("Session expired or invalid credentials. Please log in again.");
+        setActiveScreen("landing");
+        setShowLoginModal(true);
+        return;
       } else {
         setErrorType("GENERATION_FAILED");
         setErrorMessage(err.response?.data?.detail || err.message || "Failed to generate story details.");
@@ -242,7 +254,7 @@ function Nomad NotesAppContent() {
 export default function Home() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Nomad NotesAppContent />
+      <NomadNotesAppContent />
       <Toaster position="top-right" richColors toastOptions={{ duration: 3000 }} />
     </QueryClientProvider>
   );
