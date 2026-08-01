@@ -1,6 +1,6 @@
 # Tech Stack & Tools Evolution
 
-ChronoPath AI has undergone significant architectural shifts to reach its current industry-standard state. This document traces the evolution of our tech stack, the tools we used, and the rationale behind each migration.
+Nomad Notes has undergone significant architectural shifts to reach its current industry-standard state. This document traces the evolution of our tech stack, the tools we used, and the rationale behind each migration.
 
 ## 1. Database & Persistence
 

@@ -29,7 +29,7 @@ const queryClient = new QueryClient({
   },
 });
 
-function ChronoPathAppContent() {
+function Nomad NotesAppContent() {
   const [activeScreen, setActiveScreen] = useState<string>("landing");
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [storyData, setStoryData] = useState<GenerateResponse | null>(null);
@@ -146,7 +146,7 @@ function ChronoPathAppContent() {
       
       if (err.code === "ERR_NETWORK" || !err.response) {
         setErrorType("SERVER_UNAVAILABLE");
-        setErrorMessage("Could not connect to ChronoPath backend servers. Make sure your Python server is running on port 8000.");
+        setErrorMessage("Could not connect to Nomad Notes backend servers. Make sure your Python server is running on port 8000.");
       } else {
         setErrorType("GENERATION_FAILED");
         setErrorMessage(err.response?.data?.detail || err.message || "Failed to generate story details.");
@@ -242,7 +242,7 @@ function ChronoPathAppContent() {
 export default function Home() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ChronoPathAppContent />
+      <Nomad NotesAppContent />
       <Toaster position="top-right" richColors toastOptions={{ duration: 3000 }} />
     </QueryClientProvider>
   );

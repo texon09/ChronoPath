@@ -1,13 +1,15 @@
 import unittest
+from unittest.mock import patch, AsyncMock
 
 from agents.supervisor import SupervisorAgent
 
 
 class MvpFlowTest(unittest.TestCase):
-    @unittest.mock.patch("agents.location_agent.reverse_geocode")
-    @unittest.mock.patch("agents.location_agent.heritage_lookup")
-    @unittest.mock.patch("agents.location_agent.fetch_history")
-    def test_success_condition_for_shaniwar_wada(self, mock_history, mock_heritage, mock_geo):
+    @patch("agents.location_agent.genai.GenerativeModel")
+    @patch("agents.location_agent.reverse_geocode")
+    @patch("agents.location_agent.heritage_lookup")
+    @patch("agents.location_agent.fetch_history")
+    def test_success_condition_for_shaniwar_wada(self, mock_history, mock_heritage, mock_geo, mock_model):
         import asyncio
         async def mock_geo_resp(*args):
             return {"city": "Pune", "state": "MH", "country": "IN", "lat": 18.5196, "lng": 73.8553, "display_name": "Pune"}
@@ -19,6 +21,11 @@ class MvpFlowTest(unittest.TestCase):
         mock_geo.side_effect = mock_geo_resp
         mock_heritage.side_effect = mock_heritage_resp
         mock_history.side_effect = mock_history_resp
+
+        # Mock the Router LLM to force fallback to fetch_history
+        mock_model_instance = AsyncMock()
+        mock_model_instance.generate_content_async.return_value.text = '{"is_famous": false}'
+        mock_model.return_value = mock_model_instance
 
         response = SupervisorAgent().run(
             {

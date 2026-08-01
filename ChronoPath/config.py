@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, ValidationError, model_validator
 
 
 class Settings(BaseModel):
-    app_name: str = "ChronoPath AI"
+    app_name: str = "Nomad Notes"
     environment: str = Field(default="development")
     google_api_key: str | None = Field(default=None)
     google_cloud_project: str | None = Field(default=None)
@@ -73,7 +73,7 @@ def get_settings():
 
     try:
         return Settings(
-            app_name=os.getenv("APP_NAME", "ChronoPath AI"),
+            app_name=os.getenv("APP_NAME", "Nomad Notes"),
             environment=os.getenv("ENVIRONMENT", "development"),
             google_api_key=os.getenv("GOOGLE_API_KEY"),
             google_cloud_project=os.getenv("GOOGLE_CLOUD_PROJECT"),
@@ -90,4 +90,4 @@ def get_settings():
             retry_attempts=int(os.getenv("RETRY_ATTEMPTS", "2")),
         )
     except ValidationError as exc:
-        raise RuntimeError(f"Invalid ChronoPath configuration: {exc}") from exc
+        raise RuntimeError(f"Invalid Nomad Notes configuration: {exc}") from exc

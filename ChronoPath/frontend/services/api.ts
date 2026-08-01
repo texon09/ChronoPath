@@ -45,8 +45,8 @@ export const sendFeedback = async (requestId: string, rating: number): Promise<v
 };
 
 // Client-side local storage wrappers for profile and journey persistence since backend currently lacks them
-const PROFILE_KEY = "chronopath_profile";
-const JOURNEY_KEY = "chronopath_journey_history";
+const PROFILE_KEY = "nomadnotes_profile";
+const JOURNEY_KEY = "nomadnotes_journey_history";
 
 export const getProfile = async (): Promise<Profile> => {
   if (typeof window === "undefined") {

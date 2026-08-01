@@ -1,7 +1,7 @@
 import logging
 from memory.memory_manager import MemoryManager
 
-logger = logging.getLogger("chronopath.agents.memory_agent")
+logger = logging.getLogger("nomadnotes.agents.memory_agent")
 
 class MemoryAgent:
     def __init__(self):

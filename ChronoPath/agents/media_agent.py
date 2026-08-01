@@ -12,7 +12,7 @@ class MediaAgent:
         os.makedirs("media", exist_ok=True)
         self.base_url = os.getenv("API_BASE_URL", "http://localhost:8000")
         
-        self.bucket_name = os.getenv("GCS_BUCKET_NAME", "chronopath-media-bucket")
+        self.bucket_name = os.getenv("GCS_BUCKET_NAME", "nomadnotes-media-bucket")
         self.project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "")
         self.location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
 

@@ -1,6 +1,6 @@
 # Local Setup & Installation Guide
 
-Welcome to ChronoPath AI! This guide will help you set up the project locally for development.
+Welcome to Nomad Notes! This guide will help you set up the project locally for development.
 
 ## Prerequisites
 - Node.js (v18+)
@@ -11,12 +11,12 @@ Welcome to ChronoPath AI! This guide will help you set up the project locally fo
 
 ## 1. Clone the Repository
 ```bash
-git clone https://github.com/texon09/ChronoPath.git
-cd ChronoPath
+git clone https://github.com/texon09/Nomad Notes.git
+cd Nomad Notes
 ```
 
 ## 2. Backend Setup (FastAPI)
-ChronoPath AI uses Python and FastAPI for the agentic backend.
+Nomad Notes uses Python and FastAPI for the agentic backend.
 
 ### Virtual Environment
 ```bash
@@ -33,14 +33,14 @@ pip install -r requirements.txt
 ```
 
 ### Backend Environment Variables
-Create a `.env` file in the root `ChronoPath` directory:
+Create a `.env` file in the root `Nomad Notes` directory:
 ```env
 # API Keys
 GOOGLE_API_KEY="your_gemini_api_key_here"
 GOOGLE_MAPS_API_KEY="your_google_maps_api_key_here"
 
 # Database
-DATABASE_URL="postgresql+asyncpg://postgres:password@localhost:5432/chronopath"
+DATABASE_URL="postgresql+asyncpg://postgres:password@localhost:5432/nomadnotes"
 
 # Firebase (ensure firebase-admin.json is downloaded from your Firebase console)
 GOOGLE_APPLICATION_CREDENTIALS="firebase-admin.json"

@@ -28,7 +28,7 @@ export default function Navbar({ activeScreen, setActiveScreen }: NavbarProps) {
           </div>
           <div>
             <h1 className="font-serif text-lg font-bold tracking-tight text-brown-dark sm:text-xl">
-              ChronoPath <span className="text-gold-dark">AI</span>
+              Nomad Notes <span className="text-gold-dark">AI</span>
             </h1>
             <span className="text-[10px] uppercase tracking-wider text-brown-light/70 font-semibold block -mt-1">
               Historical Multimodal Explorer

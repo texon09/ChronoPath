@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 from memory.redis_client import RedisClient
 from core.db import get_pool
 
-logger = logging.getLogger("chronopath.memory.memory_manager")
+logger = logging.getLogger("nomadnotes.memory.memory_manager")
 
 class MemoryManager:
     def __init__(self):

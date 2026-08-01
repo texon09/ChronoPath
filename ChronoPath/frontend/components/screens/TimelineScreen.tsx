@@ -19,7 +19,7 @@ export default function TimelineScreen() {
 
   const handleClearHistory = () => {
     if (confirm("Are you sure you want to clear your local journey timeline?")) {
-      localStorage.removeItem("chronopath_journey_history");
+      localStorage.removeItem("nomadnotes_journey_history");
       setJourneys([]);
     }
   };

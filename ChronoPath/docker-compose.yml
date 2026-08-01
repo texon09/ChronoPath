@@ -12,9 +12,9 @@ services:
   postgres:
     image: pgvector/pgvector:pg16
     environment:
-      POSTGRES_USER: chronopath
-      POSTGRES_PASSWORD: chronopath
-      POSTGRES_DB: chronopath
+      POSTGRES_USER: nomadnotes
+      POSTGRES_PASSWORD: nomadnotes
+      POSTGRES_DB: nomadnotes
     ports:
       - "5432:5432"
     volumes:

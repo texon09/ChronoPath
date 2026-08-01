@@ -67,7 +67,7 @@ async def reverse_geocode(lat: float, lng: float) -> dict:
     # Free Fallback: OpenStreetMap Nominatim
     try:
         url = f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lng}&format=jsonv2"
-        headers = {"User-Agent": "ChronoPath/1.0 (opensource@chronopath.ai)"}
+        headers = {"User-Agent": "Nomad Notes/1.0 (opensource@nomadnotes.ai)"}
         async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.get(url, headers=headers)
             resp.raise_for_status()

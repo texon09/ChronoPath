@@ -10,7 +10,7 @@ export default function Footer() {
           <div className="flex items-center gap-2">
             <Compass className="h-4 w-4 text-gold-dark" />
             <span className="font-serif text-sm font-semibold tracking-wide text-brown-dark">
-              ChronoPath AI
+              Nomad Notes
             </span>
           </div>
 
@@ -21,7 +21,7 @@ export default function Footer() {
 
           {/* Copyright / Attribution */}
           <div className="flex items-center gap-1 text-xs">
-            <span>&copy; {new Date().getFullYear()} ChronoPath AI.</span>
+            <span>&copy; {new Date().getFullYear()} Nomad Notes.</span>
             <span className="text-brown-light/40">|</span>
             <span className="flex items-center gap-0.5">
               Made with <Heart className="h-3 w-3 fill-gold-dark text-gold-dark" /> for exploration

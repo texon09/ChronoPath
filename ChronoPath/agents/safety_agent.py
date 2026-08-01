@@ -1,7 +1,7 @@
 import re
 import logging
 
-logger = logging.getLogger("chronopath.agents.safety_agent")
+logger = logging.getLogger("nomadnotes.agents.safety_agent")
 
 class SafetyAgent:
     REQUIRED_FIELDS = {"story", "facts", "language"}

@@ -1,6 +1,6 @@
 # System Architecture
 
-ChronoPath AI is built on a highly concurrent, agentic framework designed to provide immersive, historically accurate location-based narratives. The system is split into a Next.js frontend and a FastAPI backend orchestrating several autonomous agents.
+Nomad Notes is built on a highly concurrent, agentic framework designed to provide immersive, historically accurate location-based narratives. The system is split into a Next.js frontend and a FastAPI backend orchestrating several autonomous agents.
 
 ## 1. High-Level Architecture
 - **Frontend Layer**: Next.js 14+ (React), styled with Tailwind CSS, utilizing a modern Glassmorphism design system for maximum immersion.
@@ -9,7 +9,7 @@ ChronoPath AI is built on a highly concurrent, agentic framework designed to pro
 - **Authentication**: Google Firebase Auth integration ensuring secure, decoupled identity management.
 
 ## 2. Agentic Framework (The Supervisor Pattern)
-The core intelligence of ChronoPath AI is orchestrated by a **Supervisor Agent**, which delegates tasks to specialized sub-agents based on the user's location and request.
+The core intelligence of Nomad Notes is orchestrated by a **Supervisor Agent**, which delegates tasks to specialized sub-agents based on the user's location and request.
 
 ### The Supervisor (`agents/supervisor.py`)
 Acts as the central router. When a user requests a narrative generation, the Supervisor:

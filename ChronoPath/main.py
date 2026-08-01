@@ -23,7 +23,7 @@ async def run(payload):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="ChronoPath AI terminal MVP")
+    parser = argparse.ArgumentParser(description="Nomad Notes terminal MVP")
     parser.add_argument("--user", default="1")
     parser.add_argument("--lat", type=float, default=18.5196)
     parser.add_argument("--lng", type=float, default=73.8553)

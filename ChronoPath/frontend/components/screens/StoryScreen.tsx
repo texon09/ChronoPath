@@ -36,7 +36,7 @@ export default function StoryScreen({ data, onExploreMore }: StoryScreenProps) {
     if (navigator.share) {
       navigator
         .share({
-          title: `Discover ${placeName} | ChronoPath AI`,
+          title: `Discover ${placeName} | Nomad Notes`,
           text: `Read about: ${title}`,
           url: window.location.href,
         })
@@ -125,7 +125,7 @@ export default function StoryScreen({ data, onExploreMore }: StoryScreenProps) {
 
           <div className="flex items-center gap-1.5 text-xs font-semibold text-gold-dark">
             <BookOpen className="h-4 w-4" />
-            <span>ChronoPath Chronicle</span>
+            <span>Nomad Notes Chronicle</span>
           </div>
         </div>
 

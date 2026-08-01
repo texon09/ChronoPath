@@ -1,6 +1,6 @@
-# ChronoPath AI
+# Nomad Notes
 
-ChronoPath AI is a highly advanced, agentic orchestration platform designed to generate hyper-personalized, historically accurate, and contextually rich narratives based on a user's geographical location. It moves beyond standard prompt-engineering by utilizing a custom Agent Development Kit (ADK), Agentic RAG routing, Vector-based semantic memory, and autonomous self-critique loops.
+Nomad Notes is a highly advanced, agentic orchestration platform designed to generate hyper-personalized, historically accurate, and contextually rich narratives based on a user's geographical location. It moves beyond standard prompt-engineering by utilizing a custom Agent Development Kit (ADK), Agentic RAG routing, Vector-based semantic memory, and autonomous self-critique loops.
 
 ## Technology Stack
 

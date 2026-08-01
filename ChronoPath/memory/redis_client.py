@@ -3,7 +3,7 @@ import json
 from typing import Any
 from core.cache import get_redis
 
-logger = logging.getLogger("chronopath.memory.redis_client")
+logger = logging.getLogger("nomadnotes.memory.redis_client")
 
 class RedisClient:
     _is_offline = False

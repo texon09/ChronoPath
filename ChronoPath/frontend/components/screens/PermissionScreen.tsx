@@ -68,7 +68,7 @@ export default function PermissionScreen({
             Access Historical Pathways
           </h2>
           <p className="text-sm text-brown-light/80 leading-relaxed">
-            ChronoPath AI requires access to your physical location to uncover historical landmarks, ancient stories, and local battles in your immediate surroundings.
+            Nomad Notes requires access to your physical location to uncover historical landmarks, ancient stories, and local battles in your immediate surroundings.
           </p>
         </div>
 

@@ -17,7 +17,7 @@ async def fetch_history(place: str) -> dict:
     async with httpx.AsyncClient(timeout=10.0) as client:
         # Wikipedia
         try:
-            w_resp = await client.get(wiki_url, headers={"User-Agent": "ChronoPath/1.0"})
+            w_resp = await client.get(wiki_url, headers={"User-Agent": "Nomad Notes/1.0"})
             if w_resp.status_code == 200:
                 data = w_resp.json()
                 ext = data.get("extract")
@@ -28,7 +28,7 @@ async def fetch_history(place: str) -> dict:
 
         # Wikidata
         try:
-            wd_resp = await client.get(wikidata_url, headers={"User-Agent": "ChronoPath/1.0"})
+            wd_resp = await client.get(wikidata_url, headers={"User-Agent": "Nomad Notes/1.0"})
             if wd_resp.status_code == 200:
                 data = wd_resp.json()
                 if data.get("search"):

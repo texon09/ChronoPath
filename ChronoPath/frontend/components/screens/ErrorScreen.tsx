@@ -20,7 +20,7 @@ export default function ErrorScreen({ type, message, onRetry, onBack }: ErrorScr
         return {
           icon: WifiOff,
           title: "Network Unreachable",
-          desc: "It seems you are offline. ChronoPath AI requires an active internet connection to download local historical data and compile oral chronicles.",
+          desc: "It seems you are offline. Nomad Notes requires an active internet connection to download local historical data and compile oral chronicles.",
         };
       case "LOCATION_DENIED":
         return {

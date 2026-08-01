@@ -24,7 +24,7 @@ export default function LandingScreen({ onStart }: LandingScreenProps) {
         </div>
 
         <h1 className="font-serif text-4xl sm:text-6xl font-bold tracking-tight text-brown-dark leading-tight mb-6">
-          Travel Through Time with <span className="text-gold-dark font-normal italic">ChronoPath AI</span>
+          Travel Through Time with <span className="text-gold-dark font-normal italic">Nomad Notes</span>
         </h1>
 
         <p className="text-lg sm:text-xl text-brown-light/80 font-sans max-w-2xl mx-auto leading-relaxed mb-10">

@@ -58,7 +58,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
           <div className="w-16 h-16 bg-amber-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-amber-500/30">
             <Compass className="w-8 h-8 text-amber-500" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">ChronoPath AI</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">Nomad Notes</h2>
           <p className="text-zinc-400 text-sm">
             Unlock the history hidden beneath your feet.
           </p>
@@ -99,7 +99,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-zinc-800/50 border border-zinc-700 text-white rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
-                  placeholder="explorer@chronopath.ai"
+                  placeholder="explorer@nomadnotes.ai"
                   required
                 />
               </div>

@@ -210,7 +210,7 @@ export default function JourneyScreen({
         </button>
 
         <p className="text-xs text-brown-light/70 text-center max-w-sm leading-relaxed">
-          ChronoPath AI will query Wikipedia, historical datasets, and compile local chronicles to compose an immersive story.
+          Nomad Notes will query Wikipedia, historical datasets, and compile local chronicles to compose an immersive story.
         </p>
       </div>
     </div>

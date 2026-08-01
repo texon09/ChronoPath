@@ -14,7 +14,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "ChronoPath AI | Historical Multimodal Explorer",
+  title: "Nomad Notes | Historical Multimodal Explorer",
   description: "Explore the hidden history of your surroundings with AI-powered stories, immersive audio, and visuals.",
 };
 

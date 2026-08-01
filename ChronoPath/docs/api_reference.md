@@ -1,6 +1,6 @@
 # API Reference
 
-ChronoPath AI uses FastAPI to expose an asynchronous HTTP server. All endpoints (except health and metrics) require Firebase JWT authentication via the `Authorization: Bearer <token>` header.
+Nomad Notes uses FastAPI to expose an asynchronous HTTP server. All endpoints (except health and metrics) require Firebase JWT authentication via the `Authorization: Bearer <token>` header.
 
 ## Primary Endpoints
 
@@ -76,7 +76,7 @@ Returns the status of the API server. No authentication required.
 ```json
 {
   "status": "ok",
-  "app": "ChronoPath AI",
+  "app": "Nomad Notes",
   "environment": "production"
 }
 ```

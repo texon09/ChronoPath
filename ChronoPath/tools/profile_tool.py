@@ -4,7 +4,7 @@ from pydantic import BaseModel
 import json
 import logging
 
-logger = logging.getLogger("chronopath.tools.profile_tool")
+logger = logging.getLogger("nomadnotes.tools.profile_tool")
 
 class ProfileResult(BaseModel):
     language: str

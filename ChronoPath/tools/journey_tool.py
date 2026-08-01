@@ -6,7 +6,7 @@ import logging
 import os
 import google.generativeai as genai
 
-logger = logging.getLogger("chronopath.tools.journey_tool")
+logger = logging.getLogger("nomadnotes.tools.journey_tool")
 
 class JourneyResult(BaseModel):
     visited_places: list[str]
