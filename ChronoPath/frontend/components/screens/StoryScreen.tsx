@@ -49,7 +49,6 @@ export default function StoryScreen({ data, onExploreMore }: StoryScreenProps) {
         setShared(true);
         setTimeout(() => setShared(false), 2000);
       });
-      });
     }
   };
 
