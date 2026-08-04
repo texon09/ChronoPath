@@ -59,9 +59,6 @@ function NomadNotesAppContent() {
         auth.onAuthStateChanged((u) => {
           setUser(u);
           setAuthChecking(false);
-          if (!u) {
-            setShowLoginModal(true);
-          }
         });
       });
 
@@ -86,7 +83,11 @@ function NomadNotesAppContent() {
 
   const handleLoginSuccess = () => {
     setShowLoginModal(false);
-    handleStartJourney(); // Re-trigger journey start now that user is logged in
+    if (lastExploreOptions && (activeScreen === "explore" || activeScreen === "loading" || activeScreen === "landing")) {
+      handleExplore(lastExploreOptions);
+    } else {
+      handleStartJourney(); // Re-trigger journey start now that user is logged in
+    }
   };
 
   const handlePermissionGranted = (userCoords: { lat: number; lng: number }) => {
@@ -156,7 +157,7 @@ function NomadNotesAppContent() {
           setUser(null);
         });
         toast.error("Session expired or invalid credentials. Please log in again.");
-        setActiveScreen("landing");
+        setActiveScreen("explore");
         setShowLoginModal(true);
         return;
       } else {
@@ -241,12 +242,17 @@ function NomadNotesAppContent() {
 
   return (
     <div className="flex flex-col min-h-screen relative">
-      <Navbar activeScreen={activeScreen} setActiveScreen={setActiveScreen} />
+      <Navbar activeScreen={activeScreen} setActiveScreen={setActiveScreen} user={user} />
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 flex flex-col justify-center">
         {renderScreen()}
       </main>
       <Footer />
-      {showLoginModal && <LoginScreen onSuccess={handleLoginSuccess} />}
+      {showLoginModal && (
+        <LoginScreen 
+          onSuccess={handleLoginSuccess} 
+          onClose={() => setShowLoginModal(false)}
+        />
+      )}
     </div>
   );
 }

@@ -6,9 +6,10 @@ import { Compass, History, User, MapPin } from "lucide-react";
 interface NavbarProps {
   activeScreen: string;
   setActiveScreen: (screen: string) => void;
+  user?: any;
 }
 
-export default function Navbar({ activeScreen, setActiveScreen }: NavbarProps) {
+export default function Navbar({ activeScreen, setActiveScreen, user }: NavbarProps) {
   const navItems = [
     { id: "explore", label: "Explore", icon: Compass },
     { id: "timeline", label: "Timeline", icon: History },
@@ -56,6 +57,21 @@ export default function Navbar({ activeScreen, setActiveScreen }: NavbarProps) {
               </button>
             );
           })}
+          
+          {/* Logout Button */}
+          {user && (
+            <button
+              onClick={() => {
+                import("../services/firebase").then(({ auth }) => {
+                  auth.signOut();
+                  setActiveScreen("landing");
+                });
+              }}
+              className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-red-700/80 hover:bg-red-900/10 hover:text-red-900 transition-all duration-300 focus:outline-none ml-2"
+            >
+              Log Out
+            </button>
+          )}
         </nav>
 
         {/* Mobile Navigation icons */}
@@ -78,6 +94,22 @@ export default function Navbar({ activeScreen, setActiveScreen }: NavbarProps) {
               </button>
             );
           })}
+          
+          {/* Mobile Logout */}
+          {user && (
+            <button
+              onClick={() => {
+                import("../services/firebase").then(({ auth }) => {
+                  auth.signOut();
+                  setActiveScreen("landing");
+                });
+              }}
+              title="Log Out"
+              className="flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-300 focus:outline-none text-red-700/80 hover:bg-red-900/10 hover:text-red-900 ml-1"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            </button>
+          )}
         </nav>
       </div>
     </header>
