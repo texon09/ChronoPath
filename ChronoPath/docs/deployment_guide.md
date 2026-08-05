@@ -1,51 +1,43 @@
 # Nomad Notes - Deployment Guide
 
-This guide details the Zero-Cost Hybrid Deployment strategy (Vercel + Render) to host Nomad Notes in a production environment.
+This guide details the **100% Free Monorepo Deployment** using Vercel. 
+
+Both the Next.js Frontend and the FastAPI Backend will be deployed on Vercel together. Vercel recently upgraded their free "Hobby" tier timeout limit to 5 minutes, which means it can comfortably handle our AI agents without crashing!
 
 ## 1. Architecture Overview
-- **Frontend (Next.js):** Deployed to Vercel (Edge network, fastest load times, 100% free).
-- **Backend (FastAPI):** Deployed to **Hugging Face Spaces** using the "Gradio" workaround (100% free, **no credit card required**).
-- **Caching & Rate Limiting:** Upstash Redis (Serverless Redis, Generous free tier).
-- **Database:** Supabase PostgreSQL (Free tier).
+- **Frontend (Next.js):** Deployed to Vercel (Edge network).
+- **Backend (FastAPI):** Deployed to Vercel as a Serverless Python Function.
+- **Caching & Rate Limiting:** Upstash Redis.
+- **Database:** Supabase PostgreSQL.
 
-## 2. Setting Up the Backend (Hugging Face Spaces)
-Because Docker Spaces are now a paid feature on Hugging Face, we will use the free **Gradio SDK** as a loophole to host our FastAPI backend!
+*(Total Cost: $0, No Credit Card Required)*
 
-1. Create a free account on [HuggingFace.co](https://huggingface.co/join).
-2. Click your profile picture -> **New Space**.
-3. **Space Name:** `nomad-notes-backend`
-4. **License:** MIT
-5. **Select the Space SDK:** Choose **Gradio**.
-6. **Space Hardware:** Free (CPU basic).
-7. Click **Create Space**.
-8. Go to the **Settings** tab of your new Space, scroll down to **Variables and secrets**, and add your New Secrets:
+## 2. Setting Up Upstash Redis
+1. Go to [Upstash.com](https://upstash.com) and create a free Redis database.
+2. Select **us-central1**, turn on **Eviction**, and click Create.
+3. Under the database settings, scroll down to the **Connect** section.
+4. Select **Python (redis-py)** and copy the connection string.
+   - It will look like: `rediss://default:password@endpoint-url.upstash.io:30000`
+5. Save this string, you will need it for Vercel.
+
+## 3. Deploying Everything to Vercel
+We have configured a `vercel.json` file in the root of the repository that automatically tells Vercel how to build both the frontend and the Python backend simultaneously.
+
+1. Go to [Vercel.com](https://vercel.com) and create a free account.
+2. Click **Add New... -> Project**.
+3. Import the `ChronoPath` repository from your GitHub.
+4. **IMPORTANT CONFIGURATION:**
+   - **Framework Preset:** Leave it as "Other" (Vercel will read our `vercel.json`).
+   - **Root Directory:** Leave it as the default `./` (Do not select frontend!).
+5. Open the **Environment Variables** dropdown and add ALL your secrets:
    - `GOOGLE_API_KEY`: Your Gemini API Key
    - `GOOGLE_MAPS_API_KEY`: Your Maps API Key
-   - `REDIS_URL`: (From Upstash)
-   - `DATABASE_URL`: (From Supabase)
-9. Clone the space locally or use the "Files" tab to upload your backend files (or connect it to your GitHub). The repository now includes an `app.py` file which will automatically trick Hugging Face into launching your FastAPI backend instead of a Gradio app!
-
-## 3. Setting Up Upstash Redis (For Caching & Rate Limiting)
-Since we are using the free tier of the Gemini API (which is strictly capped at 15 RPM), we MUST use a Redis layer to enforce global rate limits and cache requests to prevent crashes.
-
-1. Go to [Upstash.com](https://upstash.com) and create a free Redis database.
-2. Under the database settings, scroll down to the **Connect** section.
-3. Select **Python (redis-py)** and copy the connection string.
-   - It will look like: `rediss://default:password@endpoint-url.upstash.io:30000` (Note the `rediss://` for TLS)
-4. Add this string as `REDIS_URL` to your Render backend.
-
-## 4. Setting Up the Frontend (Vercel)
-1. Go to [Vercel.com](https://vercel.com) and create a new project.
-2. Import the `ChronoPath` repository.
-3. **Framework Preset:** Next.js
-4. **Root Directory:** `frontend/`
-5. **Environment Variables:**
-   - `NEXT_PUBLIC_API_URL`: The URL of your deployed Render backend (e.g., `https://nomadnotes-backend.onrender.com`)
-   - `NEXT_PUBLIC_FIREBASE_API_KEY`: Your Firebase client keys...
-
+   - `REDIS_URL`: Your Upstash connection string
+   - `DATABASE_URL`: Your Supabase Postgres URL
+   - `NEXT_PUBLIC_FIREBASE_API_KEY`: Your Firebase keys...
 6. Click **Deploy**.
 
-## 5. Security & Rate Limiting Details
-- **CORS:** The backend is configured in `api/main.py` to only allow requests from Vercel. Be sure to update the `allow_origins` array with your actual Vercel domain once it is generated.
-- **Rate Limit:** The backend enforces a strict maximum of 12 requests per minute globally. If multiple users attempt to generate a story at once, they will receive a 429 status code ("High traffic! Please wait 60 seconds").
-- **Caching:** Identical requests (same coordinates and interests) bypass the AI completely and are served directly from the Redis cache instantly for 24 hours.
+## 4. How It Works
+- Vercel will look at `vercel.json` and build your React app from the `frontend/` folder.
+- It will then take your `api/main.py` file, install `requirements.txt`, and turn it into a Serverless Python backend.
+- Any request to `your-app.vercel.app/api/...` will automatically be routed to your Python FastAPI server!
