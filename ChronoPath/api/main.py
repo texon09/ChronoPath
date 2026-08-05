@@ -13,6 +13,11 @@ from config import get_settings
 from agents.supervisor import SupervisorAgent
 from schemas import GenerateRequest, GenerateResponse, FeedbackRequest
 from core.auth import get_current_user
+import hashlib
+import json
+import redis.asyncio as aioredis
+
+redis_client = aioredis.from_url(settings.redis_url, decode_responses=True)
 
 # Configure structlog
 structlog.configure(
@@ -34,7 +39,11 @@ app = FastAPI(title=settings.app_name)
 # CORS middleware configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://chronopath-ai.vercel.app", 
+        "https://nomadnotes.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -97,11 +106,48 @@ async def generate(request: GenerateRequest, current_user: str = Depends(get_cur
     logger.info("generate_request_started", request_id=request.request_id if hasattr(request, 'request_id') else "unknown")
     try:
         payload = request.to_agent_payload()
-        # Enforce authenticated user context
         payload["user_id"] = current_user
         
+        # 1. Global Rate Limiter (Max 12 requests per minute to respect Gemini 15 RPM free tier limit)
+        try:
+            current_requests = await redis_client.incr("global_requests_minute")
+            if current_requests == 1:
+                await redis_client.expire("global_requests_minute", 60)
+            if current_requests > 12:
+                logger.warning("rate_limit_exceeded")
+                raise HTTPException(status_code=429, detail="High traffic! To ensure stability on our free tier, please wait 60 seconds before generating a new story.")
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.warning("redis_rate_limit_failed", error=str(e))
+            
+        # 2. Redis Caching Layer (Cache identical requests for 24 hours to save API calls)
+        payload_str = json.dumps({
+            "lat": payload["lat"],
+            "lng": payload["lng"],
+            "interests": payload["context"].get("interests", []),
+            "age": payload["context"].get("age", "")
+        }, sort_keys=True)
+        cache_key = f"generate_cache:{hashlib.md5(payload_str.encode()).hexdigest()}"
+        
+        try:
+            cached_res = await redis_client.get(cache_key)
+            if cached_res:
+                logger.info("cache_hit", key=cache_key)
+                return json.loads(cached_res)
+        except Exception as e:
+            logger.warning("redis_cache_get_failed", error=str(e))
+        
+        # 3. ADK Generation
         res = await supervisor.execute(payload)
         logger.info("generate_request_completed", place=res.place.name)
+        
+        # 4. Save to Cache
+        try:
+            await redis_client.setex(cache_key, 86400, res.model_dump_json())
+        except Exception as e:
+            logger.warning("redis_cache_set_failed", error=str(e))
+            
         return res
     except ValueError as exc:
         logger.error("generate_request_failed", error=str(exc))
