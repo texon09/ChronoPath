@@ -21,6 +21,16 @@ export default function StoryScreen({ data, onExploreMore }: StoryScreenProps) {
   const placeName = typeof data.place === "string" ? data.place : data.place.name;
   const { title, story } = data.text;
 
+  // Security Helper: Block unsafe links
+  const getSafeLink = (url: string) => {
+    if (!url) return "#";
+    const lower = url.toLowerCase();
+    if (lower.startsWith("javascript:") || lower.startsWith("data:") || lower.startsWith("vbscript:")) {
+      return "#";
+    }
+    return url;
+  };
+
   // Calculate estimated reading time
   const wordCount = story.split(/\s+/).length;
   const readingTime = Math.max(1, Math.ceil(wordCount / 180)); // 180 words per minute average
@@ -216,19 +226,22 @@ export default function StoryScreen({ data, onExploreMore }: StoryScreenProps) {
               <MapPin className="w-5 h-5 text-gold-dark" /> Nearby Discoveries
             </h3>
             <div className="flex flex-col gap-4">
-              {data.nearby_places.map((place, idx) => (
-                <a 
-                  key={idx}
-                  href={place.maps_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="parchment-card rounded-xl p-4 hover:shadow-lg transition-all group block border border-parchment-dark hover:border-gold-dark bg-parchment-light/80"
-                >
-                   <h4 className="font-bold text-brown-dark group-hover:text-gold-dark transition-colors">{place.name}</h4>
-                   <p className="text-[11px] text-gold-dark font-mono my-1.5 font-semibold uppercase tracking-wider">{place.distance}</p>
-                   <p className="text-sm text-brown-light leading-snug">{place.description}</p>
-                </a>
-              ))}
+              {data.nearby_places.map((place, idx) => {
+                const safeHref = getSafeLink(place.maps_url);
+                return (
+                  <a 
+                    key={idx}
+                    href={safeHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="parchment-card rounded-xl p-4 hover:shadow-lg transition-all group block border border-parchment-dark hover:border-gold-dark bg-parchment-light/80"
+                  >
+                     <h4 className="font-bold text-brown-dark group-hover:text-gold-dark transition-colors">{place.name}</h4>
+                     <p className="text-[11px] text-gold-dark font-mono my-1.5 font-semibold uppercase tracking-wider">{place.distance}</p>
+                     <p className="text-sm text-brown-light leading-snug">{place.description}</p>
+                  </a>
+                );
+              })}
             </div>
           </div>
         </motion.div>

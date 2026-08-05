@@ -14,11 +14,12 @@ class SafetyAgent:
 
     async def execute(self, state):
         narrative = state.get("story")
-        safety = self.run(narrative)
+        nearby_places = state.get("nearby_places")
+        safety = self.run(narrative, nearby_places)
         state.set("safety", safety)
         return state
 
-    def run(self, narrative):
+    def run(self, narrative, nearby_places=None):
         issues = []
         confidence = 1.0
         
@@ -106,6 +107,40 @@ class SafetyAgent:
         if not has_grounding:
             issues.append("No historical facts provided for grounding validation")
             confidence = min(confidence, 0.8)
+
+        # 9. Nearby Places Validation (XSS & Prompt Injection Mitigation)
+        if nearby_places:
+            if not isinstance(nearby_places, list):
+                issues.append("nearby_places is not a list")
+                confidence = 0.0
+            else:
+                for idx, place in enumerate(nearby_places):
+                    if not isinstance(place, dict):
+                        issues.append(f"nearby_places[{idx}] is not a dictionary")
+                        confidence = 0.0
+                        continue
+                    
+                    # URL Scheme Validation (Defense-in-Depth against XSS via OWASP LLM05:2025)
+                    maps_url = place.get("maps_url", "")
+                    if not maps_url.startswith("https://www.google.com/maps") and not maps_url.startswith("https://maps.google.com"):
+                        issues.append(f"nearby_places[{idx}] contains unsafe or malformed maps_url: {maps_url}")
+                        html_safe = False
+                        confidence = 0.0
+
+                    # Scrub name and description for PII and Unsafe HTML
+                    name = place.get("name", "")
+                    desc = place.get("description", "")
+                    content_to_check = f"{name} {desc}"
+                    
+                    if self.HTML_UNSAFE_REGEX.search(content_to_check):
+                        issues.append(f"Unsafe HTML detected in nearby_places[{idx}]")
+                        html_safe = False
+                        confidence = 0.0
+                        
+                    if self.EMAIL_REGEX.search(content_to_check) or self.PHONE_REGEX.search(content_to_check):
+                        issues.append(f"PII detected in nearby_places[{idx}]")
+                        pii_safe = False
+                        confidence = min(confidence, 0.4)
 
         approved = len(issues) == 0 and confidence == 1.0
 
