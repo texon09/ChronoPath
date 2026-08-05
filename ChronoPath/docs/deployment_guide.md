@@ -4,24 +4,26 @@ This guide details the Zero-Cost Hybrid Deployment strategy (Vercel + Render) to
 
 ## 1. Architecture Overview
 - **Frontend (Next.js):** Deployed to Vercel (Edge network, fastest load times, 100% free).
-- **Backend (FastAPI):** Deployed to Render.com as a persistent Web Service (Free tier available).
+- **Backend (FastAPI):** Deployed to **Hugging Face Spaces** using the "Gradio" workaround (100% free, **no credit card required**).
 - **Caching & Rate Limiting:** Upstash Redis (Serverless Redis, Generous free tier).
 - **Database:** Supabase PostgreSQL (Free tier).
 
-## 2. Setting Up the Backend (Render)
-1. Create a free account on [Render.com](https://render.com).
-2. Click **New +** -> **Web Service** -> Build and deploy from a Git repository.
-3. Connect your GitHub repository and select the `ChronoPath` project.
-4. **Configuration:**
-   - **Environment:** Python 3
-   - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `uvicorn api.main:app --host 0.0.0.0 --port $PORT`
-5. **Environment Variables:**
-   Add the following to Render's environment variable section:
+## 2. Setting Up the Backend (Hugging Face Spaces)
+Because Docker Spaces are now a paid feature on Hugging Face, we will use the free **Gradio SDK** as a loophole to host our FastAPI backend!
+
+1. Create a free account on [HuggingFace.co](https://huggingface.co/join).
+2. Click your profile picture -> **New Space**.
+3. **Space Name:** `nomad-notes-backend`
+4. **License:** MIT
+5. **Select the Space SDK:** Choose **Gradio**.
+6. **Space Hardware:** Free (CPU basic).
+7. Click **Create Space**.
+8. Go to the **Settings** tab of your new Space, scroll down to **Variables and secrets**, and add your New Secrets:
    - `GOOGLE_API_KEY`: Your Gemini API Key
    - `GOOGLE_MAPS_API_KEY`: Your Maps API Key
-   - `REDIS_URL`: (You will get this from Upstash in the next step)
-   - `DATABASE_URL`: Your Supabase Postgres URL
+   - `REDIS_URL`: (From Upstash)
+   - `DATABASE_URL`: (From Supabase)
+9. Clone the space locally or use the "Files" tab to upload your backend files (or connect it to your GitHub). The repository now includes an `app.py` file which will automatically trick Hugging Face into launching your FastAPI backend instead of a Gradio app!
 
 ## 3. Setting Up Upstash Redis (For Caching & Rate Limiting)
 Since we are using the free tier of the Gemini API (which is strictly capped at 15 RPM), we MUST use a Redis layer to enforce global rate limits and cache requests to prevent crashes.
