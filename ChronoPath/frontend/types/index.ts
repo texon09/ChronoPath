@@ -33,6 +33,13 @@ export interface MetaResponse {
   cache_hit: string;
 }
 
+export interface NearbyPlace {
+  name: string;
+  distance: string;
+  description: string;
+  maps_url: string;
+}
+
 export interface GenerateResponse {
   request_id: string;
   place: PlaceResponse | string;
@@ -41,6 +48,7 @@ export interface GenerateResponse {
   visual?: VisualResponse | null;
   safe: boolean;
   meta?: MetaResponse | null;
+  nearby_places?: NearbyPlace[] | null;
 }
 
 export interface Place {

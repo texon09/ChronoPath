@@ -14,6 +14,7 @@ from agents.media_agent import MediaAgent
 from agents.memory_agent import MemoryAgent
 from agents.narrative_agent import NarrativeAgent
 from agents.profile_agent import ProfileAgent
+from agents.nearby_agent import NearbyAgent
 from agents.safety_agent import SafetyAgent
 from core.session import SessionState
 from schemas import GenerateResponse, TextResponse
@@ -34,6 +35,7 @@ class SupervisorAgent:
         self.delivery_agent = DeliveryAgent()
         self.media_agent = MediaAgent()
         self.memory_agent = MemoryAgent()
+        self.nearby_agent = NearbyAgent()
 
         self.root_runner = SequentialRunner([
             ParallelRunner([
@@ -51,6 +53,7 @@ class SupervisorAgent:
                 AgentAdapter(self.safety_agent),
                 AgentAdapter(self.delivery_agent),
                 AgentAdapter(self.media_agent),
+                AgentAdapter(self.nearby_agent),
             ]),
             AgentAdapter(self.memory_agent),
         ])
@@ -97,13 +100,14 @@ class SupervisorAgent:
         story = state.get("story")
         safety = state.get("safety")
         media = state.get("media", {})
+        nearby_places = state.get("nearby_places", [])
 
         if not story or not story.get("story"):
             raise ValueError("Narrative agent returned an empty story")
             
         latency = (time.perf_counter() - state.get("started_at", time.perf_counter())) * 1000
 
-        from schemas.response import PlaceResponse, AudioResponse, VisualResponse, MetaResponse
+        from schemas.response import PlaceResponse, AudioResponse, VisualResponse, MetaResponse, NearbyPlace
         return GenerateResponse(
             request_id=state.get("request_id"),
             place=PlaceResponse(
@@ -120,5 +124,6 @@ class SupervisorAgent:
             meta=MetaResponse(
                 latency_ms=f"{latency:.2f}",
                 cache_hit="false"
-            )
+            ),
+            nearby_places=[NearbyPlace(**p) for p in nearby_places] if nearby_places else None
         )

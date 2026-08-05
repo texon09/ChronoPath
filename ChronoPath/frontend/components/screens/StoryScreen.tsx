@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Copy, Share2, Compass, Check, BookOpen, Clock, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Copy, Share2, Compass, Check, BookOpen, Clock, ThumbsUp, ThumbsDown, MapPin } from "lucide-react";
 import { GenerateResponse } from "../../types";
 import AudioPlayer from "../AudioPlayer";
 import ImageViewer from "../ImageViewer";
@@ -63,142 +63,176 @@ export default function StoryScreen({ data, onExploreMore }: StoryScreenProps) {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 flex flex-col gap-6">
-      {/* Story Layout Header card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="parchment-card rounded-2xl p-6 sm:p-8 flex flex-col gap-4"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-parchment-dark pb-4">
-          <div className="flex flex-col text-left">
-            <span className="text-[10px] uppercase font-bold tracking-wider text-gold-dark">
-              {placeName}
-            </span>
-            <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-brown-dark mt-1">
-              {title}
-            </h2>
-          </div>
-
-          {/* Reading Time */}
-          <div className="flex items-center gap-1.5 text-xs text-brown-light/70 font-mono bg-parchment-dark/40 px-3 py-1.5 rounded-lg">
-            <Clock className="h-4 w-4 text-gold-dark" />
-            <span>{readingTime} Min Read</span>
-          </div>
-        </div>
-
-        {/* Story Text */}
-        <div className="font-serif text-base sm:text-lg text-brown-light leading-relaxed text-justify whitespace-pre-wrap py-2">
-          {story}
-        </div>
-
-        {/* Bottom Actions Row */}
-        <div className="flex items-center justify-between border-t border-parchment-dark pt-4 mt-2">
-          <div className="flex gap-2">
-            <button
-              onClick={handleCopy}
-              className="flex items-center gap-2 border border-parchment-dark hover:bg-parchment-dark/30 text-brown-light hover:text-brown-dark px-3 py-2 rounded-lg text-xs font-semibold transition-all focus:outline-none"
-            >
-              {copied ? (
-                <>
-                  <Check className="h-3.5 w-3.5 text-gold-dark" />
-                  <span>Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="h-3.5 w-3.5" />
-                  <span>Copy Story</span>
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-2 border border-parchment-dark hover:bg-parchment-dark/30 text-brown-light hover:text-brown-dark px-3 py-2 rounded-lg text-xs font-semibold transition-all focus:outline-none"
-            >
-              <Share2 className="h-3.5 w-3.5" />
-              <span>{shared ? "Link Copied!" : "Share"}</span>
-            </button>
-          </div>
-
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-gold-dark">
-            <BookOpen className="h-4 w-4" />
-            <span>Nomad Notes Chronicle</span>
-          </div>
-        </div>
-
-        {/* Feedback Row */}
-        <div className="flex items-center justify-between border-t border-parchment-dark pt-4 mt-2">
-          <span className="text-xs text-brown-light font-medium">How was this story? Chrono will remember!</span>
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleFeedback(1)}
-              disabled={feedbackGiven !== null}
-              className={`p-2 rounded-lg transition-all ${
-                feedbackGiven === 1 
-                  ? "bg-gold-base/20 text-gold-dark border border-gold-dark" 
-                  : "border border-parchment-dark text-brown-light hover:bg-parchment-dark/30 hover:text-brown-dark"
-              }`}
-              title="Thumbs Up"
-            >
-              <ThumbsUp className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => handleFeedback(-1)}
-              disabled={feedbackGiven !== null}
-              className={`p-2 rounded-lg transition-all ${
-                feedbackGiven === -1 
-                  ? "bg-brown-base/20 text-brown-dark border border-brown-dark" 
-                  : "border border-parchment-dark text-brown-light hover:bg-parchment-dark/30 hover:text-brown-dark"
-              }`}
-              title="Thumbs Down"
-            >
-              <ThumbsDown className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Multimodal integrations (Audio & Image) */}
-      {(data.audio?.url || data.visual?.url) && (
+    <div className="mx-auto max-w-6xl px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Left Column */}
+      <div className="lg:col-span-2 flex flex-col gap-6">
+        {/* Story Layout Header card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          transition={{ duration: 0.5 }}
+          className="parchment-card rounded-2xl p-6 sm:p-8 flex flex-col gap-4"
         >
-          {/* Custom audio player */}
-          {data.audio?.url && (
-            <div className="md:col-span-2">
-              <AudioPlayer url={data.audio.url} duration={data.audio.duration} />
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-parchment-dark pb-4">
+            <div className="flex flex-col text-left">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-gold-dark">
+                {placeName}
+              </span>
+              <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-brown-dark mt-1">
+                {title}
+              </h2>
             </div>
-          )}
 
-          {/* Historical reconstruction image */}
-          {data.visual?.url && (
-            <div className="md:col-span-2">
-              <ImageViewer url={data.visual.url} placeName={placeName} />
+            {/* Reading Time */}
+            <div className="flex items-center gap-1.5 text-xs text-brown-light/70 font-mono bg-parchment-dark/40 px-3 py-1.5 rounded-lg">
+              <Clock className="h-4 w-4 text-gold-dark" />
+              <span>{readingTime} Min Read</span>
             </div>
-          )}
+          </div>
+
+          {/* Story Text */}
+          <div className="font-serif text-base sm:text-lg text-brown-light leading-relaxed text-justify whitespace-pre-wrap py-2">
+            {story}
+          </div>
+
+          {/* Bottom Actions Row */}
+          <div className="flex items-center justify-between border-t border-parchment-dark pt-4 mt-2">
+            <div className="flex gap-2">
+              <button
+                onClick={handleCopy}
+                className="flex items-center gap-2 border border-parchment-dark hover:bg-parchment-dark/30 text-brown-light hover:text-brown-dark px-3 py-2 rounded-lg text-xs font-semibold transition-all focus:outline-none"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-gold-dark" />
+                    <span>Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3.5 w-3.5" />
+                    <span>Copy Story</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-2 border border-parchment-dark hover:bg-parchment-dark/30 text-brown-light hover:text-brown-dark px-3 py-2 rounded-lg text-xs font-semibold transition-all focus:outline-none"
+              >
+                <Share2 className="h-3.5 w-3.5" />
+                <span>{shared ? "Link Copied!" : "Share"}</span>
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-gold-dark">
+              <BookOpen className="h-4 w-4" />
+              <span>Nomad Notes Chronicle</span>
+            </div>
+          </div>
+
+          {/* Feedback Row */}
+          <div className="flex items-center justify-between border-t border-parchment-dark pt-4 mt-2">
+            <span className="text-xs text-brown-light font-medium">How was this story? Chrono will remember!</span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleFeedback(1)}
+                disabled={feedbackGiven !== null}
+                className={`p-2 rounded-lg transition-all ${
+                  feedbackGiven === 1 
+                    ? "bg-gold-base/20 text-gold-dark border border-gold-dark" 
+                    : "border border-parchment-dark text-brown-light hover:bg-parchment-dark/30 hover:text-brown-dark"
+                }`}
+                title="Thumbs Up"
+              >
+                <ThumbsUp className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => handleFeedback(-1)}
+                disabled={feedbackGiven !== null}
+                className={`p-2 rounded-lg transition-all ${
+                  feedbackGiven === -1 
+                    ? "bg-brown-base/20 text-brown-dark border border-brown-dark" 
+                    : "border border-parchment-dark text-brown-light hover:bg-parchment-dark/30 hover:text-brown-dark"
+                }`}
+                title="Thumbs Down"
+              >
+                <ThumbsDown className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Multimodal integrations (Audio & Image) */}
+        {(data.audio?.url || data.visual?.url) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            className="grid grid-cols-1 gap-6"
+          >
+            {/* Custom audio player */}
+            {data.audio?.url && (
+              <div>
+                <AudioPlayer url={data.audio.url} duration={data.audio.duration} />
+              </div>
+            )}
+
+            {/* Historical reconstruction image */}
+            {data.visual?.url && (
+              <div>
+                <ImageViewer url={data.visual.url} placeName={placeName} />
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* Explore More CTA */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="flex justify-center mt-4"
+        >
+          <button
+            onClick={onExploreMore}
+            className="flex items-center gap-2 bg-brown-base text-gold-base px-6 py-3.5 rounded-xl font-bold shadow-md hover:bg-brown-light hover:text-gold-bright transition-all group focus:outline-none"
+          >
+            <Compass className="h-5 w-5 group-hover:rotate-45 transition-transform" />
+            <span>Explore More Locations</span>
+          </button>
+        </motion.div>
+      </div>
+
+      {/* Right Column: Nearby Places */}
+      {data.nearby_places && data.nearby_places.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="lg:col-span-1 flex flex-col gap-4"
+        >
+          <div className="sticky top-24 flex flex-col gap-4">
+            <h3 className="font-serif text-xl font-bold text-brown-dark flex items-center gap-2 mb-2">
+              <MapPin className="w-5 h-5 text-gold-dark" /> Nearby Discoveries
+            </h3>
+            <div className="flex flex-col gap-4">
+              {data.nearby_places.map((place, idx) => (
+                <a 
+                  key={idx}
+                  href={place.maps_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="parchment-card rounded-xl p-4 hover:shadow-lg transition-all group block border border-parchment-dark hover:border-gold-dark bg-parchment-light/80"
+                >
+                   <h4 className="font-bold text-brown-dark group-hover:text-gold-dark transition-colors">{place.name}</h4>
+                   <p className="text-[11px] text-gold-dark font-mono my-1.5 font-semibold uppercase tracking-wider">{place.distance}</p>
+                   <p className="text-sm text-brown-light leading-snug">{place.description}</p>
+                </a>
+              ))}
+            </div>
+          </div>
         </motion.div>
       )}
-
-      {/* Explore More CTA */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="flex justify-center mt-4"
-      >
-        <button
-          onClick={onExploreMore}
-          className="flex items-center gap-2 bg-brown-base text-gold-base px-6 py-3.5 rounded-xl font-bold shadow-md hover:bg-brown-light hover:text-gold-bright transition-all group focus:outline-none"
-        >
-          <Compass className="h-5 w-5 group-hover:rotate-45 transition-transform" />
-          <span>Explore More Locations</span>
-        </button>
-      </motion.div>
     </div>
   );
 }

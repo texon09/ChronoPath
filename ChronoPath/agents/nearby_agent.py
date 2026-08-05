@@ -1,0 +1,65 @@
+import os
+import json
+import asyncio
+import google.generativeai as genai
+
+class NearbyAgent:
+    async def execute(self, state):
+        location = state.get("location")
+        context = state.get("context")
+        
+        nearby_places = await self.run(location, context)
+        state.set("nearby_places", nearby_places)
+        return state
+
+    async def run(self, location, context):
+        if not location or not context:
+            return []
+            
+        place_name = location.get("place", "Unknown location")
+        lat = location.get("lat")
+        lng = location.get("lng")
+        
+        interests = context.get("interests", [])
+        age = context.get("age", "Unknown")
+        background = context.get("background", "General Explorer")
+        
+        prompt = (
+            f"You are a helpful travel assistant. The user is currently at {place_name} ({lat}, {lng}). "
+            f"Based on their interests ({', '.join(interests) if interests else 'general exploration'}), age ({age}), and background ({background}), "
+            f"suggest 4-5 of the most visited and famous historical spots or popular food spots nearby. "
+            f"Return ONLY a valid JSON array. Each object in the array MUST have the following keys: "
+            f"'name' (string, name of the place), "
+            f"'distance' (string, estimated walking or driving distance, e.g., '5 mins walk'), "
+            f"'description' (string, a short one-sentence engaging description tailored to the user), "
+            f"'maps_url' (string, a Google Maps directions URL, e.g., 'https://www.google.com/maps/dir/?api=1&destination=ENCODED_PLACE_NAME_OR_LAT_LNG'). "
+            f"Do NOT include markdown formatting like ```json or any other text. Output strictly the JSON array."
+        )
+
+        try:
+            api_key = os.getenv("GOOGLE_API_KEY")
+            if api_key:
+                genai.configure(api_key=api_key, transport='rest')
+                
+            model = genai.GenerativeModel("gemini-3.5-flash")
+            
+            creds = os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
+            
+            try:
+                loop = asyncio.get_running_loop()
+                response = await loop.run_in_executor(None, lambda: model.generate_content(prompt))
+                text = response.text.strip()
+                if text.startswith("```json"):
+                    text = text.replace("```json", "", 1)
+                if text.endswith("```"):
+                    text = text[:-3]
+                
+                places = json.loads(text.strip())
+                return places
+            finally:
+                if creds is not None:
+                    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds
+                    
+        except Exception as e:
+            print(f"Nearby places generation failed: {e}")
+            return []

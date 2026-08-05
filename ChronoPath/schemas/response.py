@@ -20,6 +20,12 @@ class MetaResponse(BaseModel):
     latency_ms: str
     cache_hit: str
 
+class NearbyPlace(BaseModel):
+    name: str
+    distance: str
+    description: str
+    maps_url: str
+
 class GenerateResponse(BaseModel):
     request_id: str
     # Union to remain strictly backward compatible with older clients expecting a string
@@ -29,3 +35,4 @@ class GenerateResponse(BaseModel):
     visual: Optional[VisualResponse] = None
     safe: bool
     meta: Optional[MetaResponse] = None
+    nearby_places: Optional[list[NearbyPlace]] = None
