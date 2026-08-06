@@ -16,7 +16,7 @@ from core.auth import get_current_user
 import hashlib
 import json
 import redis.asyncio as aioredis
-
+settings = get_settings()
 redis_client = aioredis.from_url(settings.redis_url, decode_responses=True)
 
 # Configure structlog
@@ -33,7 +33,6 @@ logger = structlog.get_logger()
 REQUEST_COUNT = Counter('request_count', 'App Request Count', ['method', 'endpoint', 'http_status'])
 REQUEST_LATENCY = Histogram('request_latency_seconds', 'Request latency', ['endpoint'])
 
-settings = get_settings()
 
 # Vercel injects the VERCEL=1 environment variable. 
 # We set root_path="/api" so FastAPI knows how to route requests properly behind Vercel's rewrite.
@@ -129,8 +128,7 @@ async def generate(request: GenerateRequest, current_user: str = Depends(get_cur
         payload_str = json.dumps({
             "lat": payload["lat"],
             "lng": payload["lng"],
-            "interests": payload["context"].get("interests", []),
-            "age": payload["context"].get("age", "")
+            "age": payload.get("age")
         }, sort_keys=True)
         cache_key = f"generate_cache:{hashlib.md5(payload_str.encode()).hexdigest()}"
         

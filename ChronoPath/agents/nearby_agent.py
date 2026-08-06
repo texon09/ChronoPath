@@ -17,15 +17,23 @@ class NearbyAgent:
             return []
             
         place_name = location.get("place", "Unknown location")
-        lat = location.get("lat")
-        lng = location.get("lng")
+        
+        # Extract lat/lng which are nested inside the 'geo' object returned by LocationAgent
+        geo = location.get("geo", {})
+        lat = geo.get("lat", "Unknown")
+        lng = geo.get("lng", "Unknown")
+        city = geo.get("city", "")
+        state = geo.get("state", "")
+        country = geo.get("country", "")
+        
+        qualified_place = f"{place_name}, {city}, {state}, {country}".strip(", ")
         
         interests = context.get("interests", [])
         age = context.get("age", "Unknown")
         background = context.get("background", "General Explorer")
         
         prompt = (
-            f"You are a helpful travel assistant. The user is currently at {place_name} ({lat}, {lng}). "
+            f"You are a helpful travel assistant. The user is currently at {qualified_place} (Coordinates: {lat}, {lng}). "
             f"Based on their interests ({', '.join(interests) if interests else 'general exploration'}), age ({age}), and background ({background}), "
             f"suggest 4-5 of the most visited and famous historical spots or popular food spots nearby. "
             f"Return ONLY a valid JSON array. Each object in the array MUST have the following keys: "
