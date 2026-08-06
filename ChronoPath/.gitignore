@@ -228,3 +228,11 @@ media/visual_*
 # Sensitive keys and credentials
 *.json
 !users_db.json
+
+# Local virtual environments
+venv/
+venv2/
+venv3/
+
+# Local logs
+*.log
