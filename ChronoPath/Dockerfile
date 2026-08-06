@@ -1,15 +1,21 @@
-# Build stage
-FROM python:3.11-slim as builder
-WORKDIR /app
-COPY requirements.txt .
-RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
-
-# Runtime stage
 FROM python:3.11-slim
+
+# Set the working directory
 WORKDIR /app
-COPY --from=builder /app/wheels /wheels
-COPY --from=builder /app/requirements.txt .
-RUN pip install --no-cache /wheels/*
-COPY . /app/
+
+# Copy the requirements file and install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the backend code
+COPY . .
+
+# Expose standard web port
+ENV PORT=8000
 EXPOSE 8000
+
+# Add the current directory to PYTHONPATH so imports work correctly
+ENV PYTHONPATH=/app
+
+# Start the FastAPI server
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
