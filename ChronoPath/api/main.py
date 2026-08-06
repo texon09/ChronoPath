@@ -34,7 +34,11 @@ REQUEST_COUNT = Counter('request_count', 'App Request Count', ['method', 'endpoi
 REQUEST_LATENCY = Histogram('request_latency_seconds', 'Request latency', ['endpoint'])
 
 settings = get_settings()
-app = FastAPI(title=settings.app_name)
+
+# Vercel injects the VERCEL=1 environment variable. 
+# We set root_path="/api" so FastAPI knows how to route requests properly behind Vercel's rewrite.
+is_vercel = os.environ.get("VERCEL") == "1"
+app = FastAPI(title=settings.app_name, root_path="/api" if is_vercel else "")
 
 # CORS middleware configuration
 app.add_middleware(
