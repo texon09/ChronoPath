@@ -6,14 +6,14 @@ ChronoPath AI is a highly advanced, agentic orchestration platform designed to g
 
 ### Application & Orchestration
 - **Framework:** Custom Google-ADK (Agent Development Kit) for multi-agent graph routing.
-- **Backend:** FastAPI (Python 3.13) for high-performance, asynchronous endpoints.
-- **LLM Engine:** Google Gemini (via `google-genai`), specifically `gemini-3.5-flash`.
+- **Backend:** FastAPI (Python 3.12) for high-performance, asynchronous endpoints.
+- **LLM Engine:** Google Gemini (via `google-genai`), specifically `gemini-2.5-flash` and `gemini-embedding-2`.
 
 ### Database & Memory
 - **Primary Database:** PostgreSQL 16
 - **Vector Search:** `pgvector` (L2 distance semantic search for user travel memories)
 - **Database Driver:** `asyncpg` / `sqlalchemy[asyncio]`
-- **Caching & State:** Redis
+- **Caching & Rate Limiting:** Redis (24-hour cache and 15 RPM limits)
 
 ### External Integrations & APIs
 - **Geocoding & Places:** Google Maps API (`googlemaps`)
@@ -48,7 +48,7 @@ flowchart TD
 
     subgraph Location & RAG Data
         LocAgent --> GeoTool(Geo Tool\nGoogle Maps API)
-        LocAgent --> Router{Agentic Router\nGemini 3.5}
+        LocAgent --> Router{Agentic Router\nGemini 2.5}
         Router -- "is_famous: True" --> LLMMemory[(LLM Internal\nKnowledge Weights)]
         Router -- "is_famous: False" --> WikiTool(History Tool\nWikipedia API)
     end
@@ -63,8 +63,8 @@ flowchart TD
     MemoryAgent --> ContextAgg
     
     subgraph Self-Critique Loop
-        ContextAgg --> Generator[Narrative Agent\nGemini 3.5]
-        Generator --> Reviewer[Reviewer Agent\nGemini 3.5]
+        ContextAgg --> Generator[Narrative Agent\nGemini 2.5]
+        Generator --> Reviewer[Reviewer Agent\nGemini 2.5]
         Reviewer -- "Critique Failed" --> Generator
     end
     
@@ -131,3 +131,6 @@ curl -X POST http://localhost:8000/generate \
 ## Configuration
 
 Copy `.env.example` to `.env` and provide real credentials (`GOOGLE_API_KEY`, etc.) before enabling production integrations.
+
+**Local Auth Bypass:**
+For local development without Firebase credentials, set `LOCAL_AUTH_BYPASS=true` in `.env` (this is environment-gated and strictly disabled in production).
